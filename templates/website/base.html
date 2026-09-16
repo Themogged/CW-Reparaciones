@@ -1,0 +1,208 @@
+{% load static %}
+<!doctype html>
+<html lang="es" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <title>{% block title %}{{ site_settings.brand_name|default:"CW Reparaciones" }} · Servicio técnico{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Servicio técnico para lavadoras, neveras y otros equipos del hogar y la industria. Consulta atención a domicilio en el Área Metropolitana.{% endblock %}">
+    {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site_settings.brand_name|default:'CW Reparaciones' }}">
+    <meta property="og:title" content="{% block social_title %}{{ site_settings.brand_name|default:'CW Reparaciones' }} · Servicio técnico{% endblock %}">
+    <meta property="og:description" content="{% block social_description %}Servicio técnico para equipos del hogar y la industria en el Área Metropolitana.{% endblock %}">
+    {% if canonical_url %}<meta property="og:url" content="{{ canonical_url }}">{% endif %}
+    {% if social_image_url %}<meta property="og:image" content="{{ social_image_url }}"><meta property="og:image:width" content="1735"><meta property="og:image:height" content="907"><meta property="og:image:alt" content="{{ site_settings.brand_name|default:'CW Reparaciones' }} — servicio técnico">{% endif %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ site_settings.brand_name|default:'CW Reparaciones' }} · Servicio técnico{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Servicio técnico para equipos del hogar y la industria en el Área Metropolitana.{% endblock %}">
+    {% if social_image_url %}<meta name="twitter:image" content="{{ social_image_url }}"><meta name="twitter:image:alt" content="{{ site_settings.brand_name|default:'CW Reparaciones' }} — servicio técnico">{% endif %}
+    <meta name="theme-color" content="#062f67">
+    <meta name="color-scheme" content="light">
+    {% block robots_meta %}{% endblock %}
+    <link rel="icon" href="{% static 'website/images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20260915-v6" as="style">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20260915-v6">
+    <script defer src="{% static 'website/js/main.js' %}?v=20260915-v6"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+    <header class="site-header" data-site-header>
+        <div class="container header-inner">
+            <a class="brand" href="{% url 'website:home' %}" aria-label="{{ site_settings.brand_name|default:'CW Reparaciones' }} — Inicio">
+                <img src="{% static 'website/images/cw-mark.svg' %}" width="64" height="64" alt="">
+                <span class="brand-wordmark"><strong>CW Reparaciones</strong><small>Servicios Técnicos</small></span>
+            </a>
+
+            <nav class="desktop-nav" aria-label="Navegación principal">
+                <a href="{% url 'website:home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>Inicio</a>
+                {% if site_settings.feature_services %}
+                    <a href="{% url 'website:service_list' %}"{% if request.resolver_match.url_name == 'service_list' or request.resolver_match.url_name == 'service_detail' %} aria-current="page"{% endif %}>Servicios</a>
+                {% endif %}
+                <a href="{% url 'website:coverage' %}"{% if request.resolver_match.url_name == 'coverage' %} aria-current="page"{% endif %}>Cobertura</a>
+                {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}"{% if request.resolver_match.url_name == 'portfolio_list' or request.resolver_match.url_name == 'portfolio_detail' %} aria-current="page"{% endif %}>Trabajos reales</a>{% endif %}
+                <a href="{% url 'website:about' %}"{% if request.resolver_match.url_name == 'about' %} aria-current="page"{% endif %}>Nosotros</a>
+                <a href="{% url 'website:contact' %}"{% if request.resolver_match.url_name == 'contact' %} aria-current="page"{% endif %}>Contacto</a>
+            </nav>
+
+            <div class="header-actions">
+                {% if contact_channels.whatsapp_url %}<a class="header-whatsapp" href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Solicitar servicio por WhatsApp" title="Escribir por WhatsApp"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg></a>{% endif %}
+                {% if site_settings.feature_diagnostic_form %}
+                    <a class="button button-primary header-cta" href="{% url 'website:request_service' %}">
+                        <span>Solicitar servicio</span>
+                        <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg>
+                    </a>
+                {% endif %}
+                <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
+                    <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-menu"></use></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+        <div class="mobile-menu-panel" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
+            <div class="mobile-menu-head">
+                <span id="mobile-menu-title">Navegación</span>
+                <button type="button" class="icon-button" aria-label="Cerrar menú" data-menu-close>
+                    <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-close"></use></svg>
+                </button>
+            </div>
+            <nav aria-label="Navegación móvil">
+                <a href="{% url 'website:home' %}">Inicio</a>
+                {% if site_settings.feature_services %}<a href="{% url 'website:service_list' %}">Servicios</a>{% endif %}
+                {% if site_settings.feature_services %}<a href="{% url 'website:service_category' 'hogar' %}">Hogar</a><a href="{% url 'website:service_category' 'industriales' %}">Industria</a>{% endif %}
+                <a href="{% url 'website:coverage' %}">Cobertura</a>
+                {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}">Trabajos reales</a>{% endif %}
+                <a href="{% url 'website:about' %}">Nosotros</a>
+                <a href="{% url 'website:contact' %}">Contacto</a>
+            </nav>
+            {% if site_settings.feature_diagnostic_form or contact_channels.whatsapp_url or contact_channels.phone_url or social_links.instagram %}
+            <div class="mobile-menu-action">
+                {% if site_settings.feature_diagnostic_form %}<a class="button button-primary button-block" href="{% url 'website:request_service' %}">Solicitar servicio</a>{% endif %}
+                {% if contact_channels.whatsapp_url %}<a class="button button-whatsapp button-block" href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer">Hablar por WhatsApp</a>{% endif %}
+                {% if contact_channels.phone_url or social_links.instagram %}
+                <div class="mobile-menu-secondary">
+                    {% if contact_channels.phone_url %}<a href="{{ contact_channels.phone_url }}">Llamar al {{ contact_channels.phone }}</a>{% endif %}
+                    {% if social_links.instagram %}<a href="{{ social_links.instagram }}" target="_blank" rel="noopener noreferrer">Instagram</a>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <main id="main-content" tabindex="-1">
+        {% if messages %}
+            <div class="container message-stack" aria-live="polite" aria-atomic="true">
+                {% for message in messages %}
+                    <div class="notice notice-{{ message.tags|default:'info' }}" role="status">
+                        <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-info"></use></svg>
+                        <p>{{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a class="brand brand-on-dark" href="{% url 'website:home' %}" aria-label="{{ site_settings.brand_name|default:'CW Reparaciones' }} — Inicio">
+                    <img src="{% static 'website/images/cw-mark.svg' %}" width="64" height="64" alt="">
+                    <span class="brand-wordmark"><strong>CW Reparaciones</strong><small>Servicios Técnicos</small></span>
+                </a>
+                <p>Servicios Técnicos para equipos del hogar y la industria. Consulta atención a domicilio en el Área Metropolitana.</p>
+            </div>
+
+            <div class="footer-column">
+                <h2>Explora</h2>
+                <ul>
+                    <li><a href="{% url 'website:home' %}">Inicio</a></li>
+                    {% if site_settings.feature_services %}<li><a href="{% url 'website:service_list' %}">Servicios</a></li>{% endif %}
+                    <li><a href="{% url 'website:coverage' %}">Cobertura</a></li>
+                    {% if has_published_portfolio %}<li><a href="{% url 'website:portfolio_list' %}">Trabajos reales</a></li>{% endif %}
+                    <li><a href="{% url 'website:about' %}">Nosotros</a></li>
+                    <li><a href="{% url 'website:contact' %}">Contacto</a></li>
+                    <li><a href="{% url 'website:home' %}#preguntas">Preguntas frecuentes</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h2>Contacto</h2>
+                <ul class="footer-contact-list">
+                    {% if contact_channels.whatsapp_url %}
+                        <li><a href="{{ contact_channels.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp <span>{{ contact_channels.whatsapp }}</span></a></li>
+                    {% endif %}
+                    {% if contact_channels.phone_url %}
+                        <li><a href="{{ contact_channels.phone_url }}">Teléfono <span>{{ contact_channels.phone }}</span></a></li>
+                    {% endif %}
+                    {% if contact_channels.email_url %}
+                        <li><a href="{{ contact_channels.email_url }}">Correo <span>{{ contact_channels.email }}</span></a></li>
+                    {% endif %}
+                    {% if site_settings.address %}
+                        <li>
+                            {% if site_settings.google_maps_url %}<a href="{{ site_settings.google_maps_url }}" target="_blank" rel="noopener noreferrer">{% endif %}
+                                Dirección <span>{{ site_settings.address }}{% if site_settings.city %}, {{ site_settings.city }}{% endif %}</span>
+                            {% if site_settings.google_maps_url %}</a>{% endif %}
+                        </li>
+                    {% endif %}
+                    {% if site_settings.feature_diagnostic_form and not contact_channels.whatsapp_url and not contact_channels.phone_url and not contact_channels.email_url %}
+                        <li><a href="{% url 'website:contact' %}#solicitar">Formulario de solicitud</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="footer-column footer-coverage">
+                <h2>Zona de servicio</h2>
+                <p>Área Metropolitana: Bello, Itagüí, El Poblado, Sabaneta y La Estrella. Consulta disponibilidad para tu sector.</p>
+                {% if business_hours %}<h3>Horario confirmado</h3><dl>{% for label, hours in business_hours %}<div><dt>{{ label }}</dt><dd>{{ hours }}</dd></div>{% endfor %}</dl>{% endif %}
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>© {% now "Y" %} {{ site_settings.brand_name|default:"CW Reparaciones" }}.</p>
+            <nav aria-label="Información legal">
+                <a href="{% url 'website:privacy' %}">Privacidad</a>
+                <a href="{% url 'website:terms' %}">Términos</a>
+            </nav>
+        </div>
+    </footer>
+
+    {% if contact_channels.whatsapp_url or contact_channels.phone_url or site_settings.feature_diagnostic_form %}
+    <div class="mobile-sticky-actions" aria-label="Acciones rápidas">
+        {% if contact_channels.whatsapp_url %}
+            <a class="sticky-action sticky-whatsapp" href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Solicitar servicio por WhatsApp">
+                <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg>
+                <span>WhatsApp</span>
+            </a>
+        {% endif %}
+        {% if contact_channels.phone_url %}
+            <a class="sticky-action" href="{{ contact_channels.phone_url }}">
+                <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-phone"></use></svg>
+                <span>Llamar</span>
+            </a>
+        {% endif %}
+        {% if site_settings.feature_diagnostic_form and not contact_channels.phone_url %}<a class="sticky-action sticky-primary" href="{% url 'website:request_service' %}">
+            <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg>
+            <span>Solicitar</span>
+        </a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if contact_channels.whatsapp_url %}
+    <div class="cw-whatsapp-orb" data-whatsapp-orb>
+        <span class="cw-whatsapp-label" data-whatsapp-label>Solicitar servicio</span>
+        <a href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Solicitar servicio por WhatsApp" title="Escribir por WhatsApp" data-whatsapp-orb-link>
+            <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg>
+        </a>
+    </div>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

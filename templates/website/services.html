@@ -1,0 +1,66 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Servicios técnicos para hogar e industria · CW Reparaciones{% endblock %}
+{% block meta_description %}Conoce los servicios de CW Reparaciones para lavadoras, neveras, estufas de inducción, lavavajillas, aires acondicionados, abanicos y equipos industriales en el Área Metropolitana.{% endblock %}
+{% block social_title %}Servicios técnicos · CW Reparaciones{% endblock %}
+{% block social_description %}Explora los equipos que atendemos y consulta atención a domicilio en tu sector.{% endblock %}
+{% block twitter_title %}Servicios técnicos · CW Reparaciones{% endblock %}
+{% block twitter_description %}Explora los equipos que atendemos y consulta atención a domicilio en tu sector.{% endblock %}
+{% block body_class %}page-services cw-page-services{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Servicios</span></nav>
+    <p class="eyebrow eyebrow-on-dark">Hogar e industria</p>
+    <h1 id="page-title">Encuentra el servicio para tu equipo.</h1>
+    <p>Identifica el equipo, revisa la información de su servicio y cuéntanos qué problema presenta. La causa se determina tras una revisión técnica.</p>
+    <div class="cw-page-hero-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi los servicios de CW Reparaciones y quisiera consultar una revisión. Les comparto el equipo, el problema y mi zona:" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="button button-ghost-light" href="{% url 'website:request_service' %}">Enviar solicitud</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% if services %}
+<section class="section cw-services" aria-labelledby="service-list-title">
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">Servicios técnicos</p>
+      <h2 id="service-list-title">¿Qué equipo necesitas reparar?</h2>
+      <p>Los servicios se organizan en equipos de hogar y equipos industriales.</p>
+    </div>
+    <div class="cw-service-categories" aria-label="Filtrar por categoría">
+      <a href="{% url 'website:service_category' 'hogar' %}">Hogar <span aria-hidden="true">↗</span></a>
+      <a href="{% url 'website:service_category' 'industriales' %}">Industria <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="service-grid cw-service-grid">
+      {% for service in services %}{% include "website/partials/service_card.html" with service=service %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section-tinted cw-process-summary" aria-labelledby="process-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Para comenzar</p><h2 id="process-title">Tres datos ayudan a entender tu solicitud.</h2></div>
+    <ol class="cw-three-steps">
+      <li><span>01</span><h3>Equipo</h3><p>Indica si es una lavadora, nevera u otro equipo del catálogo.</p></li>
+      <li><span>02</span><h3>Síntoma</h3><p>Describe lo que observas sin necesidad de diagnosticarlo.</p></li>
+      <li><span>03</span><h3>Zona</h3><p>Comparte municipio y sector para consultar cobertura.</p></li>
+    </ol>
+    <p class="cw-process-warning">Un mismo síntoma puede tener distintas causas. Es necesario revisar el equipo antes de confirmar el diagnóstico.</p>
+  </div>
+</section>
+
+<section class="final-cta" aria-labelledby="services-cta-title">
+  <div class="container final-cta-inner">
+    <div><p class="eyebrow eyebrow-on-dark">¿No encuentras tu equipo?</p><h2 id="services-cta-title">Cuéntanos qué sucede.</h2><p>Podemos confirmar si corresponde a un servicio disponible y si hay cobertura en tu zona.</p></div>
+    <div class="final-cta-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera confirmar si CW Reparaciones atiende mi equipo: . Estoy en: ." target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>{% endif %}
+      {% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}">Llamar</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% load static %}
+<article class="service-card service-category-card" data-reveal>
+    <div class="service-card-icon" aria-hidden="true">
+        <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{{ category.icon_key|default:'tool' }}"></use></svg>
+    </div>
+    <p class="eyebrow service-card-category">Categoría de atención</p>
+    <h3>{{ category.name }}</h3>
+    {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+    {% if site_settings.feature_diagnostic_form %}
+        <a class="text-link" href="{% url 'website:contact' %}#solicitar">
+            Solicitar atención
+            <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg>
+        </a>
+    {% endif %}
+</article>

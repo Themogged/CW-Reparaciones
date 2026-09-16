@@ -1,0 +1,16 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}No pudimos completar la operación · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block meta_description %}Ocurrió un error temporal al cargar la página.{% endblock %}
+{% block robots_meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block body_class %}page-error{% endblock %}
+
+{% block content %}
+<section class="error-page" aria-labelledby="error-title">
+    <div class="error-grid" aria-hidden="true"></div>
+    <div class="container error-layout error-layout-centered">
+        <div class="error-copy" data-reveal><p class="error-code">500</p><p class="eyebrow eyebrow-on-dark">Error temporal</p><h1 id="error-title">Algo no funcionó correctamente.</h1><p>No pudimos completar esta operación en este momento.</p><div class="error-actions"><button class="button button-primary" type="button" onclick="window.location.reload()">Intentar nuevamente</button><a class="button button-ghost-light" href="{% url 'website:home' %}">Ir al inicio</a><a class="text-link text-link-on-dark" href="{% url 'website:contact' %}">Contacto</a></div></div>
+    </div>
+</section>
+{% endblock %}

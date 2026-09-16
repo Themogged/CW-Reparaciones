@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local secrets
+.venv/
+venv/
+.env
+
+# Django runtime
+db.sqlite3
+db.sqlite3-journal
+media/
+private_uploads/
+staticfiles/
+media_work/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Browser test artifacts
+output/playwright/

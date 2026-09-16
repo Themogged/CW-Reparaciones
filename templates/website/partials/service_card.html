@@ -1,0 +1,14 @@
+{% load static %}
+<article class="service-card cw-service-card">
+    {% if service.image %}<a class="cw-service-card-image" href="{% url 'website:service_detail' service.slug %}"><img src="{{ service.image.url }}" alt="Equipo relacionado con {{ service.name }}" loading="lazy" decoding="async"></a>{% endif %}
+    <div class="service-card-icon" aria-hidden="true">
+        <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{{ service.icon_key|default:'tool' }}"></use></svg>
+    </div>
+    {% if service.category %}<p class="eyebrow service-card-category">{{ service.category }}</p>{% endif %}
+    <h3><a href="{% url 'website:service_detail' service.slug %}">{{ service.name }}</a></h3>
+    {% if service.short_description %}<p>{{ service.short_description }}</p>{% endif %}
+    <div class="cw-card-actions">
+      <a class="text-link" href="{% url 'website:service_detail' service.slug %}" aria-label="Ver servicio: {{ service.name }}">Ver servicio <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>
+      {% if contact_channels.whatsapp_url %}<a class="cw-card-request" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi el servicio de {{ service.name }} y quisiera solicitar una revisión. Les comparto el problema y mi zona:" target="_blank" rel="noopener noreferrer" aria-label="Solicitar revisión de {{ service.name }} por WhatsApp">Solicitar revisión</a>{% endif %}
+    </div>
+</article>

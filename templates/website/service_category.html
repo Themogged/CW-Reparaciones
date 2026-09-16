@@ -1,0 +1,34 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Servicios para {{ category.name|lower }} · CW Reparaciones{% endblock %}
+{% block meta_description %}Conoce los servicios técnicos de CW Reparaciones para {{ category.name|lower }}. Consulta atención a domicilio en el Área Metropolitana y solicita una revisión de tu equipo.{% endblock %}
+{% block social_title %}Servicios para {{ category.name|lower }} · CW Reparaciones{% endblock %}
+{% block social_description %}Encuentra el servicio para tu equipo y consulta atención en tu sector.{% endblock %}
+{% block twitter_title %}Servicios para {{ category.name|lower }} · CW Reparaciones{% endblock %}
+{% block twitter_description %}Encuentra el servicio para tu equipo y consulta atención en tu sector.{% endblock %}
+{% block body_class %}cw-page-category{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><a href="{% url 'website:service_list' %}">Servicios</a><span aria-hidden="true">/</span><span aria-current="page">{{ category.name }}</span></nav>
+    <p class="eyebrow eyebrow-on-dark">Servicios técnicos</p>
+    <h1 id="page-title">Equipos para {{ category.name|lower }}.</h1>
+    {% if category.short_description %}<p>{{ category.short_description }}</p>{% else %}<p>Selecciona un equipo para conocer el servicio y solicitar una revisión.</p>{% endif %}
+    <div class="cw-page-hero-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera consultar un servicio técnico para un equipo de {{ category.name|lower }}. Les comparto el equipo, el problema y mi zona:" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="button button-ghost-light" href="{% url 'website:request_service' %}">Solicitar servicio</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section cw-services" aria-labelledby="category-services-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">{{ category.name }}</p><h2 id="category-services-title">Servicios disponibles</h2><p>Describe los síntomas que observas; el diagnóstico requiere revisar el equipo.</p></div>
+    {% if services %}<div class="service-grid cw-service-grid">{% for service in services %}{% include "website/partials/service_card.html" with service=service %}{% endfor %}</div>{% endif %}
+    <div class="cw-category-end"><a class="text-link" href="{% url 'website:service_list' %}">Ver todos los servicios <span aria-hidden="true">↗</span></a></div>
+  </div>
+</section>
+<section class="final-cta" aria-labelledby="category-cta-title"><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Atención a domicilio</p><h2 id="category-cta-title">Consulta si llegamos a tu sector.</h2><p>Indica el municipio o sector y el equipo que requiere revisión.</p></div><div class="final-cta-actions"><a class="button button-primary" href="{% url 'website:coverage' %}">Ver cobertura</a>{% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}">Llamar</a>{% endif %}</div></div></section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Términos de uso · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block meta_description %}Condiciones generales de uso del sitio web de CW Reparaciones.{% endblock %}
+{% block body_class %}page-legal{% endblock %}
+
+{% block content %}
+<section class="legal-hero" aria-labelledby="page-title">
+    <div class="container legal-hero-inner">
+        <nav class="breadcrumbs" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Términos</span></nav>
+        <p class="eyebrow">Información legal</p>
+        <h1 id="page-title">Términos de uso</h1>
+        <p>Condiciones para utilizar este sitio y enviar una solicitud de servicio.</p>
+    </div>
+</section>
+
+<section class="section legal-section">
+    <div class="container legal-layout">
+        <aside class="legal-aside"><div><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-info"></use></svg><p>Enviar el formulario inicia una solicitud de contacto; no confirma automáticamente un servicio.</p></div></aside>
+        <article class="legal-content">
+            <section aria-labelledby="terms-purpose"><h2 id="terms-purpose">1. Finalidad del sitio</h2><p>Este sitio presenta información de {{ site_settings.brand_name|default:"CW Reparaciones" }} y permite enviar solicitudes relacionadas con servicios técnicos para electrodomésticos domésticos e industriales.</p></section>
+            <section aria-labelledby="terms-request"><h2 id="terms-request">2. Solicitudes</h2><p>El envío de un formulario confirma únicamente la recepción de los datos. No constituye por sí mismo una cotización, diagnóstico, reserva, plazo, garantía ni aceptación automática del servicio.</p></section>
+            <section aria-labelledby="terms-accuracy"><h2 id="terms-accuracy">3. Información proporcionada</h2><p>La persona que envía una solicitud debe procurar que los datos sean correctos, suficientes y relacionados con el equipo. No se deben enviar contenidos ilícitos, dañinos ni información privada innecesaria.</p></section>
+            <section aria-labelledby="terms-media"><h2 id="terms-media">4. Imágenes y videos</h2><p>Quien adjunta un archivo declara que puede compartirlo para gestionar la solicitud. El material debe mostrar únicamente información relevante para el caso.</p></section>
+            <section aria-labelledby="terms-evaluation"><h2 id="terms-evaluation">5. Información técnica</h2><p>Las descripciones del sitio y la información inicial compartida por canales digitales son orientativas. La determinación técnica correspondiente depende de la revisión del equipo.</p></section>
+            <section aria-labelledby="terms-availability"><h2 id="terms-availability">6. Disponibilidad digital</h2><p>Procuramos mantener el sitio accesible y actualizado, aunque pueden ocurrir interrupciones técnicas. Los canales solo se muestran como activos cuando están configurados.</p></section>
+            <section aria-labelledby="terms-content"><h2 id="terms-content">7. Contenido y marca</h2><p>El diseño, textos, identidad visual y materiales publicados pertenecen a sus respectivos titulares. Su disponibilidad en este sitio no autoriza usos ajenos a la consulta normal del servicio.</p></section>
+            <section aria-labelledby="terms-privacy"><h2 id="terms-privacy">8. Privacidad</h2><p>El tratamiento de la información enviada se explica en la <a href="{% url 'website:privacy' %}">política de privacidad</a>.</p></section>
+            <section aria-labelledby="terms-contact"><h2 id="terms-contact">9. Contacto</h2><p>Si tienes preguntas sobre estos términos, utiliza uno de los canales configurados o el <a href="{% url 'website:contact' %}">formulario de contacto</a>.</p></section>
+        </article>
+    </div>
+</section>
+{% endblock %}

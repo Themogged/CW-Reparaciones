@@ -1,0 +1,86 @@
+{% load static %}
+<form class="service-request-form" method="post" action="{% url 'website:submit_request' %}" enctype="multipart/form-data" data-service-form>
+  {% csrf_token %}
+  <div class="form-progress" aria-label="Progreso de la solicitud">
+    <div class="form-progress-copy"><span data-progress-text>Paso 1 de 7</span><span class="form-progress-percent" data-progress-percent>14%</span></div>
+    <div class="form-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1" data-form-progress><span></span></div>
+  </div>
+  {% if request_form.non_field_errors %}
+  <div class="form-alert form-alert-error" role="alert" data-form-server-errors><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-alert"></use></svg><div><strong>No pudimos enviar tu solicitud.</strong>{{ request_form.non_field_errors }}</div></div>
+  {% endif %}
+  {{ request_form.source }}{{ request_form.utm_source }}{{ request_form.utm_medium }}{{ request_form.utm_campaign }}{{ request_form.utm_content }}{{ request_form.utm_term }}
+  <div class="honeypot-field" aria-hidden="true"><label for="{{ request_form.website.id_for_label }}">Deja este campo vacío</label>{{ request_form.website }}</div>
+
+  <section class="form-step" data-form-step="1" aria-labelledby="form-step-1-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 1 · Equipo</span><h3 id="form-step-1-title">¿Qué equipo necesita atención?</h3><p>Selecciona un servicio si lo reconoces y describe el equipo.</p></div>
+    {% if request_form.service.is_hidden %}{{ request_form.service }}{% else %}
+    <div class="form-field{% if request_form.service.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.service.id_for_label }}">Servicio <span class="optional">Opcional</span></label>{{ request_form.service }}{% if request_form.service.help_text %}<p class="field-help">{{ request_form.service.help_text }}</p>{% endif %}{% if request_form.service.errors %}<div class="field-errors" role="alert">{{ request_form.service.errors }}</div>{% endif %}</div>{% endif %}
+    <div class="form-field{% if request_form.equipment.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.equipment.id_for_label }}">Equipo <span aria-hidden="true">*</span></label>{{ request_form.equipment }}{% if request_form.equipment.help_text %}<p class="field-help">{{ request_form.equipment.help_text }}</p>{% endif %}{% if request_form.equipment.errors %}<div class="field-errors" role="alert">{{ request_form.equipment.errors }}</div>{% endif %}</div>
+    <div class="form-step-actions form-step-actions-end"><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="2" aria-labelledby="form-step-2-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 2 · Identificación</span><h3 id="form-step-2-title">Marca y modelo, si los conoces.</h3><p>Estos datos pueden estar en la etiqueta del equipo; no son obligatorios.</p></div>
+    <div class="form-grid-two">
+      <div class="form-field{% if request_form.brand.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.brand.id_for_label }}">Marca <span class="optional">Opcional</span></label>{{ request_form.brand }}{% if request_form.brand.errors %}<div class="field-errors" role="alert">{{ request_form.brand.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.model.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.model.id_for_label }}">Modelo <span class="optional">Opcional</span></label>{{ request_form.model }}{% if request_form.model.errors %}<div class="field-errors" role="alert">{{ request_form.model.errors }}</div>{% endif %}</div>
+    </div>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="3" aria-labelledby="form-step-3-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 3 · Problema</span><h3 id="form-step-3-title">Describe lo que sucede.</h3><p>No necesitas identificar la causa. Un mismo síntoma puede tener diferentes orígenes.</p></div>
+    <div class="form-field{% if request_form.issue.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.issue.id_for_label }}">Problema principal <span aria-hidden="true">*</span></label>{{ request_form.issue }}{% if request_form.issue.errors %}<div class="field-errors" role="alert">{{ request_form.issue.errors }}</div>{% endif %}</div>
+    <div class="form-field{% if request_form.frequency.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.frequency.id_for_label }}">Frecuencia <span class="optional">Opcional</span></label>{{ request_form.frequency }}{% if request_form.frequency.errors %}<div class="field-errors" role="alert">{{ request_form.frequency.errors }}</div>{% endif %}</div>
+    <div class="form-field{% if request_form.description.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.description.id_for_label }}">Detalles del problema <span aria-hidden="true">*</span></label>{{ request_form.description }}<div class="field-meta"><p class="field-help">No incluyas contraseñas ni datos financieros.</p><span data-character-count></span></div>{% if request_form.description.errors %}<div class="field-errors" role="alert">{{ request_form.description.errors }}</div>{% endif %}</div>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="4" aria-labelledby="form-step-4-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 4 · Archivo</span><h3 id="form-step-4-title">Añade una foto o video.</h3><p>Es opcional. Evita mostrar documentos, rostros o datos personales de terceros.</p></div>
+    <div class="form-field upload-field{% if request_form.diagnostic_media.errors %} has-error{% endif %}" data-field-wrap>
+      <label class="upload-dropzone" for="{{ request_form.diagnostic_media.id_for_label }}"><span class="upload-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-upload"></use></svg></span><span><strong>Seleccionar archivo</strong><small>Una imagen JPEG, PNG o WebP (hasta 8 MB), o MP4 (hasta 20 MB).</small></span></label>
+      {{ request_form.diagnostic_media }}
+      {% if request_form.diagnostic_media.help_text %}<p class="field-help" id="{{ request_form.diagnostic_media.id_for_label }}_help">{{ request_form.diagnostic_media.help_text }}</p>{% endif %}
+      {% if request_form.diagnostic_media.errors %}<div class="field-errors" role="alert">{{ request_form.diagnostic_media.errors }}</div>{% endif %}
+      <div class="media-preview" data-media-preview hidden><div class="media-preview-frame"><img alt="Vista previa del archivo seleccionado" data-media-image hidden><video controls preload="none" data-media-video hidden></video><span class="media-file-icon" data-media-file-icon hidden><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-camera"></use></svg></span></div><div class="media-preview-details"><strong data-media-name></strong><small data-media-size></small></div><div class="media-preview-actions"><button type="button" class="text-button" data-media-replace>Reemplazar</button><button type="button" class="text-button text-button-danger" data-media-remove>Quitar</button></div></div>
+    </div>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="5" aria-labelledby="form-step-5-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 5 · Ubicación</span><h3 id="form-step-5-title">¿Dónde necesitas atención?</h3><p>Comparte municipio y sector para que podamos confirmar cobertura.</p></div>
+    <div class="form-field{% if request_form.municipality.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.municipality.id_for_label }}">Municipio <span aria-hidden="true">*</span></label>{{ request_form.municipality }}{% if request_form.municipality.errors %}<div class="field-errors" role="alert">{{ request_form.municipality.errors }}</div>{% endif %}</div>
+    <div class="form-grid-two">
+      <div class="form-field{% if request_form.sector.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.sector.id_for_label }}">Sector o barrio <span class="optional">Opcional</span></label>{{ request_form.sector }}{% if request_form.sector.errors %}<div class="field-errors" role="alert">{{ request_form.sector.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.address.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.address.id_for_label }}">Dirección <span class="optional">Opcional</span></label>{{ request_form.address }}{% if request_form.address.errors %}<div class="field-errors" role="alert">{{ request_form.address.errors }}</div>{% endif %}</div>
+    </div>
+    <p class="field-help">La cobertura exacta para tu dirección se confirma al revisar la solicitud.</p>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="6" aria-labelledby="form-step-6-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 6 · Contacto</span><h3 id="form-step-6-title">¿Cómo podemos contactarte?</h3><p>Necesitamos tu nombre y WhatsApp para responder sobre el servicio.</p></div>
+    <div class="form-grid-two">
+      <div class="form-field{% if request_form.name.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.name.id_for_label }}">Nombre <span aria-hidden="true">*</span></label>{{ request_form.name }}{% if request_form.name.errors %}<div class="field-errors" role="alert">{{ request_form.name.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.whatsapp.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.whatsapp.id_for_label }}">WhatsApp <span aria-hidden="true">*</span></label>{{ request_form.whatsapp }}{% if request_form.whatsapp.errors %}<div class="field-errors" role="alert">{{ request_form.whatsapp.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.phone.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.phone.id_for_label }}">Teléfono alternativo <span class="optional">Opcional</span></label>{{ request_form.phone }}{% if request_form.phone.errors %}<div class="field-errors" role="alert">{{ request_form.phone.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.email.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.email.id_for_label }}">Correo <span class="optional">Opcional</span></label>{{ request_form.email }}{% if request_form.email.errors %}<div class="field-errors" role="alert">{{ request_form.email.errors }}</div>{% endif %}</div>
+    </div>
+    {% if request_form.contact_preference.is_hidden %}{{ request_form.contact_preference }}{% else %}<div class="form-field form-field-choice{% if request_form.contact_preference.errors %} has-error{% endif %}" data-field-wrap><p class="field-label">Preferencia de contacto <span class="optional">Opcional</span></p>{{ request_form.contact_preference }}{% if request_form.contact_preference.errors %}<div class="field-errors" role="alert">{{ request_form.contact_preference.errors }}</div>{% endif %}</div>{% endif %}
+    <div class="form-field form-consent{% if request_form.privacy_accepted.errors %} has-error{% endif %}" data-field-wrap><div class="checkbox-line">{{ request_form.privacy_accepted }}<label for="{{ request_form.privacy_accepted.id_for_label }}">He leído la <a href="{% url 'website:privacy' %}" target="_blank" rel="noopener noreferrer">política de privacidad</a> y acepto el tratamiento indicado para atender mi solicitud. <span aria-hidden="true">*</span></label></div>{% if request_form.privacy_accepted.errors %}<div class="field-errors" role="alert">{{ request_form.privacy_accepted.errors }}</div>{% endif %}</div>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary" type="button" data-step-next>Continuar</button></div>
+  </section>
+
+  <section class="form-step" data-form-step="7" aria-labelledby="form-step-7-title">
+    <div class="form-step-heading"><span class="step-kicker">Paso 7 · Preferencia</span><h3 id="form-step-7-title">¿Tienes una fecha preferida?</h3><p>Es opcional y no constituye una cita confirmada.</p></div>
+    <div class="form-grid-two">
+      <div class="form-field{% if request_form.preferred_date.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.preferred_date.id_for_label }}">Fecha preferida <span class="optional">Opcional</span></label>{{ request_form.preferred_date }}{% if request_form.preferred_date.errors %}<div class="field-errors" role="alert">{{ request_form.preferred_date.errors }}</div>{% endif %}</div>
+      <div class="form-field{% if request_form.preferred_time.errors %} has-error{% endif %}" data-field-wrap><label for="{{ request_form.preferred_time.id_for_label }}">Hora preferida <span class="optional">Opcional</span></label>{{ request_form.preferred_time }}{% if request_form.preferred_time.errors %}<div class="field-errors" role="alert">{{ request_form.preferred_time.errors }}</div>{% endif %}</div>
+    </div>
+    <p class="cw-form-booking-note">La fecha solicitada no representa una cita confirmada. Nos pondremos en contacto para revisar disponibilidad.</p>
+    <div class="form-status" aria-live="polite" aria-atomic="true" data-form-status></div>
+    <div class="form-step-actions"><button class="button button-tertiary" type="button" data-step-back>Atrás</button><button class="button button-primary submit-button" type="submit" data-submit-button><span data-submit-label>Enviar solicitud</span><span class="button-loader" aria-hidden="true"></span></button></div>
+  </section>
+  <noscript><p class="form-noscript">Todos los campos se muestran juntos porque JavaScript está desactivado. Puedes completar y enviar el formulario con normalidad.</p></noscript>
+</form>

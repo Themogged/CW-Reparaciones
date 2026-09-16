@@ -1,0 +1,54 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Trabajos técnicos reales · CW Reparaciones{% endblock %}
+{% block meta_description %}Conoce trabajos técnicos reales documentados por CW Reparaciones en videos autorizados. Consulta atención para tu equipo en el Área Metropolitana.{% endblock %}
+{% block social_title %}Trabajos técnicos reales · CW Reparaciones{% endblock %}
+{% block social_description %}Casos técnicos documentados y publicados con autorización.{% endblock %}
+{% block twitter_title %}Trabajos técnicos reales · CW Reparaciones{% endblock %}
+{% block twitter_description %}Casos técnicos documentados y publicados con autorización.{% endblock %}
+{% block body_class %}cw-page-portfolio{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Trabajos reales</span></nav>
+    <p class="eyebrow eyebrow-on-dark">Trabajo documentado</p>
+    <h1 id="page-title">Trabajos técnicos reales.</h1>
+    <p>Casos de trabajo realizados por CW Reparaciones, publicados con el contexto técnico disponible y autorización revisada.</p>
+  </div>
+</section>
+
+{% if portfolio_projects %}
+<section class="section cw-portfolio" aria-labelledby="cases-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Casos publicados</p><h2 id="cases-title">Conoce el trabajo detrás de cada equipo.</h2><p>Mostramos el contexto técnico disponible de cada registro, sin atribuir diagnósticos ni resultados que el material no documenta.</p></div>
+    <div class="portfolio-grid cw-portfolio-grid">
+      {% for project in portfolio_projects %}
+      <article class="project-card">
+        {% for video in project.published_videos|slice:":1" %}{% include "website/partials/portfolio_video.html" with video=video %}{% empty %}
+          {% if project.after_image %}<a href="{% url 'website:portfolio_detail' project.slug %}"><img src="{{ project.after_image.url }}" alt="Resultado documentado: {{ project.title }}" loading="lazy" decoding="async"></a>{% elif project.before_image %}<a href="{% url 'website:portfolio_detail' project.slug %}"><img src="{{ project.before_image.url }}" alt="Equipo documentado: {{ project.title }}" loading="lazy" decoding="async"></a>{% endif %}
+        {% endfor %}
+        <div class="project-card-body">
+          {% if project.equipment %}<p class="eyebrow">{{ project.equipment }}</p>{% endif %}
+          <h3><a href="{% url 'website:portfolio_detail' project.slug %}">{{ project.title }}</a></h3>
+          {% if project.problem %}<p>{{ project.problem|truncatewords:24 }}</p>{% endif %}
+          <a class="text-link" href="{% url 'website:portfolio_detail' project.slug %}">Ver trabajo <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="final-cta" aria-labelledby="portfolio-cta-title">
+  <div class="container final-cta-inner">
+    <div><p class="eyebrow eyebrow-on-dark">¿Tu equipo tiene un problema parecido?</p><h2 id="portfolio-cta-title">Solicita una revisión.</h2><p>Los casos muestran intervenciones concretas; el diagnóstico de tu equipo requiere una evaluación propia.</p></div>
+    <div class="final-cta-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi los trabajos documentados de CW Reparaciones y quisiera consultar una revisión para mi equipo. Les comparto el problema y mi zona:" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="button button-ghost-light" href="{% url 'website:request_service' %}">Enviar solicitud</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

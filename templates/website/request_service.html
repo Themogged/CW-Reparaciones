@@ -1,0 +1,38 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Solicitar servicio técnico · CW Reparaciones{% endblock %}
+{% block meta_description %}Envía una solicitud de revisión a CW Reparaciones. Indica equipo, problema y zona; puedes adjuntar una foto o video para explicar el caso.{% endblock %}
+{% block social_title %}Solicitar servicio · CW Reparaciones{% endblock %}
+{% block social_description %}Describe tu equipo y solicita una revisión técnica a domicilio en el Área Metropolitana.{% endblock %}
+{% block twitter_title %}Solicitar servicio · CW Reparaciones{% endblock %}
+{% block twitter_description %}Describe tu equipo y solicita una revisión técnica a domicilio en el Área Metropolitana.{% endblock %}
+{% block body_class %}cw-page-request{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Solicitar servicio</span></nav>
+    <p class="eyebrow eyebrow-on-dark">Solicitud online</p>
+    <h1 id="page-title">Cuéntanos qué sucede con tu equipo.</h1>
+    <p>Comparte los datos del equipo, el problema y la zona. Si puede ayudar, añade una foto o video. Una solicitud no representa una cita confirmada ni un diagnóstico técnico.</p>
+  </div>
+</section>
+
+<section class="section cw-request-section" id="solicitar" aria-labelledby="request-form-title">
+  <div class="container request-layout">
+    <div class="request-intro">
+      <p class="eyebrow">Datos para atenderte</p>
+      <h2 id="request-form-title">Envía tu solicitud.</h2>
+      <p>La fecha preferida, si la indicas, se usa sólo para consultar disponibilidad. No queda reservada al enviar el formulario.</p>
+      <ul class="check-list">
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Equipo y síntomas</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Municipio y sector</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Foto o video opcional</span></li>
+      </ul>
+      {% if contact_channels.whatsapp_url %}<p>¿Prefieres un mensaje directo? <a class="text-link" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera solicitar un servicio técnico a CW Reparaciones. Les comparto el equipo, el problema y mi zona:" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp <span aria-hidden="true">↗</span></a></p>{% endif %}
+    </div>
+    <div class="request-form-shell">{% include "website/partials/service_form.html" with request_form=request_form form_context="request" %}</div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Política de privacidad · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block meta_description %}Información sobre el tratamiento de datos enviados a CW Reparaciones.{% endblock %}
+{% block body_class %}page-legal{% endblock %}
+
+{% block content %}
+<section class="legal-hero" aria-labelledby="page-title">
+    <div class="container legal-hero-inner">
+        <nav class="breadcrumbs" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Privacidad</span></nav>
+        <p class="eyebrow">Información legal</p>
+        <h1 id="page-title">Política de privacidad</h1>
+        <p>Cómo utilizamos la información que compartes al solicitar atención.</p>
+    </div>
+</section>
+
+<section class="section legal-section">
+    <div class="container legal-layout">
+        <aside class="legal-aside"><div><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-lock"></use></svg><p>La información de una solicitud se utiliza para gestionar esa atención.</p></div></aside>
+        <article class="legal-content">
+            <section aria-labelledby="privacy-responsible"><h2 id="privacy-responsible">1. Responsable</h2><p>{{ site_settings.brand_name|default:"CW Reparaciones" }} gestiona los datos que se envían mediante este sitio. Los canales de contacto disponibles se muestran únicamente cuando han sido configurados.</p></section>
+            <section aria-labelledby="privacy-data"><h2 id="privacy-data">2. Datos que podemos recibir</h2><p>El formulario puede recopilar nombre, datos de contacto, información sobre el equipo y el problema descrito, preferencia de contacto y, si decides adjuntarlo, un archivo de imagen o video.</p><p>También puede registrarse información técnica básica de la solicitud, como fecha, origen de campaña y datos necesarios para proteger el formulario contra abuso.</p></section>
+            <section aria-labelledby="privacy-purpose"><h2 id="privacy-purpose">3. Para qué utilizamos los datos</h2><p>Utilizamos la información para recibir, revisar, organizar y responder tu solicitud de servicio, comunicarnos contigo sobre ella y mantener la seguridad operativa del sitio.</p></section>
+            <section aria-labelledby="privacy-files"><h2 id="privacy-files">4. Archivos adjuntos</h2><p>Adjuntar una foto o video es opcional. Comparte únicamente material relacionado con el equipo y evita incluir documentos, contraseñas, datos financieros o imágenes de personas que no hayan autorizado su envío.</p></section>
+            <section aria-labelledby="privacy-retention"><h2 id="privacy-retention">5. Conservación y acceso</h2><p>La información debe conservarse solo durante el tiempo necesario para gestionar la solicitud y cumplir obligaciones aplicables. El acceso debe limitarse a las personas autorizadas para atenderla y administrar el sistema.</p></section>
+            <section aria-labelledby="privacy-rights"><h2 id="privacy-rights">6. Consultas sobre tus datos</h2><p>Puedes solicitar información, corrección o eliminación de los datos asociados a tu solicitud mediante uno de los canales configurados en este sitio.</p>{% if contact_channels.email_url or contact_channels.phone_url or contact_channels.whatsapp_url %}<ul class="legal-contact-list">{% if contact_channels.email_url %}<li><a href="{{ contact_channels.email_url }}">{{ contact_channels.email }}</a></li>{% endif %}{% if contact_channels.phone_url %}<li><a href="{{ contact_channels.phone_url }}">{{ contact_channels.phone }}</a></li>{% endif %}{% if contact_channels.whatsapp_url %}<li><a href="{{ contact_channels.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp {{ contact_channels.whatsapp }}</a></li>{% endif %}</ul>{% else %}<p><a href="{% url 'website:contact' %}">Consulta mediante el formulario de contacto</a>.</p>{% endif %}</section>
+            <section aria-labelledby="privacy-security"><h2 id="privacy-security">7. Seguridad</h2><p>Aplicamos controles razonables para proteger la información enviada. Ningún sistema puede garantizar seguridad absoluta, por lo que recomendamos no compartir datos innecesarios.</p></section>
+            <section aria-labelledby="privacy-changes"><h2 id="privacy-changes">8. Cambios en esta política</h2><p>Esta página puede actualizarse cuando cambien los formularios, canales o procesos del sitio. La versión publicada aquí es la aplicable al uso actual del servicio digital.</p></section>
+        </article>
+    </div>
+</section>
+{% endblock %}

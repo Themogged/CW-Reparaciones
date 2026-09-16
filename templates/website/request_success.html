@@ -1,0 +1,31 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Solicitud recibida · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block meta_description %}Confirmación de recepción de una solicitud de servicio.{% endblock %}
+{% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block body_class %}page-success{% endblock %}
+
+{% block content %}
+<section class="status-page status-success" aria-labelledby="success-title">
+    <div class="status-grid" aria-hidden="true"></div>
+    <div class="container status-layout">
+        <div class="status-card" data-reveal>
+            <span class="status-icon status-icon-success"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check"></use></svg></span>
+            <p class="eyebrow">Solicitud enviada</p>
+            <h1 id="success-title">Recibimos tu solicitud.</h1>
+            <p>La información fue registrada para su revisión. Nos comunicaremos mediante el canal que seleccionaste.</p>
+            {% if ticket_number %}<div class="request-reference"><span>Número de solicitud</span><strong>{{ ticket_number }}</strong></div>{% endif %}
+            <div class="status-actions">
+                <a class="button button-primary" href="{% url 'website:home' %}">Volver al inicio</a>
+                {% if contextual_whatsapp_url %}<a class="button button-whatsapp" href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a>{% endif %}
+            </div>
+            <p class="status-help">Evita enviar información privada o financiera por canales de contacto.</p>
+        </div>
+        <div class="status-mascot" aria-hidden="true">
+            <div class="status-mascot-halo"></div>
+            <img src="{% static 'website/images/cw-technician.png' %}" width="1024" height="1536" alt="" loading="eager" decoding="async">
+        </div>
+    </div>
+</section>
+{% endblock %}

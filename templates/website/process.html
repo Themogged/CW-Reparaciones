@@ -1,0 +1,61 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Cómo trabajamos · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block meta_description %}Conoce el proceso de atención de CW Reparaciones, desde tu solicitud hasta el servicio acordado.{% endblock %}
+{% block social_title %}Cómo trabajamos · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block social_description %}Conoce el proceso de atención, desde la información inicial hasta el servicio acordado.{% endblock %}
+{% block twitter_title %}Cómo trabajamos · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
+{% block twitter_description %}Conoce el proceso de atención, desde la información inicial hasta el servicio acordado.{% endblock %}
+{% block body_class %}page-process{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-compact" aria-labelledby="page-title">
+    <div class="page-hero-grid" aria-hidden="true"></div>
+    <div class="container page-hero-inner">
+        <div class="page-hero-copy" data-reveal>
+            <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Cómo trabajamos</span></nav>
+            <p class="eyebrow eyebrow-on-dark">Proceso claro</p>
+            <h1 id="page-title">Sabes qué ocurre en cada etapa.</h1>
+            <p>Organizamos la atención desde la información inicial hasta el servicio que se acuerde contigo.</p>
+            {% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Iniciar una solicitud</a>{% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section process-detail" aria-labelledby="process-detail-title">
+    <div class="container">
+        <div class="section-heading centered-heading"><p class="eyebrow">Paso a paso</p><h2 id="process-detail-title">Así trabajamos</h2><p>Cada etapa aporta claridad antes de continuar con la siguiente.</p></div>
+        <ol class="process-detail-list">
+            <li data-reveal>
+                <div class="process-detail-number">01</div><div class="process-detail-content"><span class="process-detail-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-message"></use></svg></span><h3>Cuéntanos el problema</h3><p>Indica el equipo, los síntomas observados, la frecuencia y cómo podemos contactarte. Puedes añadir una foto o video si ayuda a mostrar lo que sucede.</p></div>
+            </li>
+            <li data-reveal>
+                <div class="process-detail-number">02</div><div class="process-detail-content"><span class="process-detail-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-search"></use></svg></span><h3>Revisamos tu solicitud</h3><p>Recibimos y organizamos los datos enviados para comprender el contexto de tu necesidad antes de la evaluación técnica.</p></div>
+            </li>
+            <li data-reveal>
+                <div class="process-detail-number">03</div><div class="process-detail-content"><span class="process-detail-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-settings"></use></svg></span><h3>Evaluación técnica</h3><p>Se revisa el equipo para identificar técnicamente el problema. El formulario previo aporta contexto, pero no reemplaza esta evaluación.</p></div>
+            </li>
+            <li data-reveal>
+                <div class="process-detail-number">04</div><div class="process-detail-content"><span class="process-detail-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-info"></use></svg></span><h3>Propuesta de solución</h3><p>Te comunicamos la alternativa de atención correspondiente y los siguientes pasos para que puedas decidir cómo continuar.</p></div>
+            </li>
+            <li data-reveal>
+                <div class="process-detail-number">05</div><div class="process-detail-content"><span class="process-detail-icon"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg></span><h3>Servicio</h3><p>La intervención se desarrolla de acuerdo con lo conversado y autorizado.</p></div>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<section class="section section-tinted process-principles" aria-labelledby="principles-title">
+    <div class="container principles-layout">
+        <div><p class="eyebrow">Nuestro enfoque</p><h2 id="principles-title">Claridad antes de avanzar.</h2><p>La información inicial permite ordenar la solicitud. Las decisiones técnicas se toman después de revisar el equipo y conversar contigo.</p></div>
+        <div class="principle-list">
+            <div><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span><strong>Sin diagnósticos automáticos</strong>La evaluación técnica confirma qué sucede.</span></div>
+            <div><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span><strong>Información comprensible</strong>Explicamos los siguientes pasos de forma clara.</span></div>
+            <div><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span><strong>Decisiones acordadas</strong>El servicio continúa según lo conversado.</span></div>
+        </div>
+    </div>
+</section>
+
+{% if site_settings.feature_diagnostic_form or contact_channels.whatsapp_url %}<section class="final-cta" aria-labelledby="process-cta-title"><div class="final-cta-grid" aria-hidden="true"></div><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Comencemos</p><h2 id="process-cta-title">Describe lo que ocurre con tu equipo.</h2><p>{% if site_settings.feature_diagnostic_form %}Completa una solicitud guiada en seis pasos.{% else %}Conversa con nosotros mediante el canal disponible.{% endif %}</p></div><div class="final-cta-actions">{% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Solicitar servicio</a>{% endif %}{% if contact_channels.whatsapp_url %}<a class="button button-ghost-light" href="{{ contact_channels.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>{% endif %}</div></div></section>{% endif %}
+{% endblock %}

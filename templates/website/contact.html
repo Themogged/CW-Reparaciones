@@ -1,0 +1,40 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Contacto · CW Reparaciones{% endblock %}
+{% block meta_description %}Contacta a CW Reparaciones por WhatsApp, teléfono o correo para consultar servicio técnico a domicilio en el Área Metropolitana. Teléfono: 317 504 0053.{% endblock %}
+{% block social_title %}Contacto · CW Reparaciones{% endblock %}
+{% block social_description %}WhatsApp, teléfono y solicitud online para equipos del hogar y la industria.{% endblock %}
+{% block twitter_title %}Contacto · CW Reparaciones{% endblock %}
+{% block twitter_description %}WhatsApp, teléfono y solicitud online para equipos del hogar y la industria.{% endblock %}
+{% block body_class %}page-contact cw-page-contact{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Contacto</span></nav>
+    <p class="eyebrow eyebrow-on-dark">CW Reparaciones</p>
+    <h1 id="page-title">Hablemos de tu equipo.</h1>
+    <p>Cuéntanos qué equipo presenta el problema, qué síntomas observas y dónde necesitas atención.</p>
+  </div>
+</section>
+
+<section class="section cw-contact-options" aria-labelledby="contact-options-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Elige un canal</p><h2 id="contact-options-title">Puedes contactarnos directamente.</h2><p>Elige la opción más cómoda para explicar el problema.</p></div>
+    <div class="contact-option-grid">
+      {% if contact_channels.whatsapp_url %}<a class="contact-option-card contact-option-whatsapp" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera solicitar un servicio técnico. Les comparto el equipo, el problema y mi zona a continuación:" target="_blank" rel="noopener noreferrer"><span><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg></span><div><small>Mensaje directo</small><h3>WhatsApp</h3><p>{{ contact_channels.whatsapp }}</p></div><svg class="icon card-arrow" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
+      {% if contact_channels.phone_url %}<a class="contact-option-card" href="{{ contact_channels.phone_url }}"><span><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-phone"></use></svg></span><div><small>Llamada</small><h3>Teléfono</h3><p>{{ contact_channels.phone }}</p></div><svg class="icon card-arrow" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
+      {% if contact_channels.email_url %}<a class="contact-option-card" href="{{ contact_channels.email_url }}"><span><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-mail"></use></svg></span><div><small>Correo</small><h3>Escríbenos</h3><p>{{ contact_channels.email }}</p></div><svg class="icon card-arrow" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="contact-option-card" href="{% url 'website:request_service' %}"><span><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg></span><div><small>Solicitud online</small><h3>Formulario</h3><p>Describe el equipo y adjunta una foto o video.</p></div><svg class="icon card-arrow" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-tinted cw-contact-coverage" aria-labelledby="contact-coverage-title">
+  <div class="container cw-coverage-layout">
+    <div><p class="eyebrow">Antes de solicitar</p><h2 id="contact-coverage-title">Comparte tu sector.</h2><p>Consulta atención en Bello, Itagüí, El Poblado, Sabaneta y La Estrella. Confirma la disponibilidad para tu municipio, barrio o corregimiento.</p><a class="button button-secondary" href="{% url 'website:coverage' %}">Ver cobertura</a></div>
+    <div class="cw-zone-list" aria-label="Zonas mencionadas"><span>Bello</span><span>Itagüí</span><span>El Poblado</span><span>Sabaneta</span><span>La Estrella</span></div>
+  </div>
+</section>
+{% endblock %}

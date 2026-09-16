@@ -1,0 +1,189 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Servicio técnico a domicilio en el Área Metropolitana · CW Reparaciones{% endblock %}
+{% block meta_description %}CW Reparaciones: servicio técnico para lavadoras, neveras, aires acondicionados y equipos industriales. Consulta cobertura en Bello, Itagüí, Sabaneta y otros sectores del Área Metropolitana.{% endblock %}
+{% block social_title %}CW Reparaciones · Servicio técnico para hogar e industria{% endblock %}
+{% block social_description %}Consulta atención a domicilio en el Área Metropolitana y solicita una revisión por WhatsApp o formulario.{% endblock %}
+{% block twitter_title %}CW Reparaciones · Servicio técnico para hogar e industria{% endblock %}
+{% block twitter_description %}Consulta atención a domicilio en el Área Metropolitana y solicita una revisión por WhatsApp o formulario.{% endblock %}
+{% block body_class %}page-home cw-page-home{% endblock %}
+
+{% block extra_head %}
+{% if canonical_url %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "{{ site_settings.brand_name|escapejs }}",
+  "description": "Servicios técnicos para equipos del hogar y la industria con atención a domicilio en diferentes sectores del Área Metropolitana.",
+  "url": "{{ canonical_url|escapejs }}",
+  {% if site_settings.phone %}"telephone": "{{ site_settings.phone|escapejs }}",{% endif %}
+  {% if site_settings.email %}"email": "{{ site_settings.email|escapejs }}",{% endif %}
+  "areaServed": [
+    {% for zone in structured_coverage_zones %}{"@type": "Place", "name": "{{ zone.name|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="cw-hero" aria-labelledby="hero-title">
+  <div class="container cw-hero-layout">
+    <div class="cw-hero-copy">
+      <p class="cw-overline">CW Reparaciones <span>·</span> Servicios Técnicos</p>
+      <h1 id="hero-title">Servicio técnico para tu <span>hogar y negocio.</span></h1>
+      <p class="cw-hero-lead">Revisión y reparación de diferentes equipos domésticos e industriales con servicio a domicilio en sectores del Área Metropolitana.</p>
+      <div class="cw-hero-actions">
+        {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera solicitar un servicio técnico. Les comparto el equipo, el problema y mi zona a continuación:" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg> Solicitar por WhatsApp</a>{% endif %}
+        {% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-phone"></use></svg> Llamar ahora</a>{% endif %}
+        {% if site_settings.feature_diagnostic_form %}<a class="cw-hero-form-link" href="{% url 'website:request_service' %}">O enviar una solicitud con fotos o video <span aria-hidden="true">→</span></a>{% endif %}
+      </div>
+      {% if site_settings.feature_portfolio and portfolio_projects %}
+        {% for project in portfolio_projects|slice:":1" %}
+          {% for video in project.published_videos|slice:":1" %}
+          <div class="cw-hero-proof" aria-label="Trabajo técnico real documentado">
+            <div class="cw-hero-proof-media">{% include "website/partials/portfolio_video.html" with video=video %}</div>
+            <div class="cw-hero-proof-copy">
+              <span>Trabajo real · CW Reparaciones</span>
+              <strong>{{ project.title }}</strong>
+              <a href="{% url 'website:portfolio_detail' project.slug %}">Ver el caso completo <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          {% endfor %}
+        {% endfor %}
+      {% endif %}
+      <p class="cw-hero-microcopy">Cuéntanos qué equipo presenta el problema y en qué zona te encuentras.</p>
+    </div>
+    <div class="cw-hero-panel" aria-label="Información del servicio">
+      <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Atención para equipos domésticos e industriales</span></div>
+      <div class="cw-panel-main">
+        <p class="cw-panel-kicker">Servicio a domicilio</p>
+        <strong>Consulta atención en tu sector.</strong>
+        <p>Bello · Itagüí · El Poblado · Sabaneta · La Estrella y zonas aledañas del Área Metropolitana.</p>
+      </div>
+      <a href="{% url 'website:coverage' %}">Ver zonas de cobertura <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+</section>
+
+{% if site_settings.feature_services and services %}
+<section class="section cw-services" id="servicios" aria-labelledby="services-title">
+  <div class="container">
+    <div class="section-heading section-heading-split">
+      <div><p class="eyebrow">Servicios</p><h2 id="services-title">¿Qué equipo necesitas reparar?</h2><p>Elige tu equipo para explicar el problema y solicitar una revisión.</p></div>
+      <a class="text-link" href="{% url 'website:service_list' %}">Ver todos los servicios <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>
+    </div>
+    <div class="cw-service-categories" aria-label="Categorías">
+      <a href="{% url 'website:service_category' 'hogar' %}">Hogar <span aria-hidden="true">↗</span></a>
+      <a href="{% url 'website:service_category' 'industriales' %}">Industria <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="service-grid cw-service-grid">
+      {% for service in services %}
+        {% include "website/partials/service_card.html" with service=service %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section cw-coverage-section" id="cobertura" aria-labelledby="coverage-title">
+  <div class="container cw-coverage-layout">
+    <div>
+      <p class="eyebrow">Área Metropolitana</p>
+      <h2 id="coverage-title">Atención a domicilio en diferentes sectores.</h2>
+      <p>Consulta atención en Bello, Itagüí, El Poblado, Sabaneta y La Estrella. Si estás en un municipio o corregimiento aledaño, confirma primero la disponibilidad para tu dirección.</p>
+      <div class="cw-coverage-actions">
+        <a class="button button-secondary" href="{% url 'website:coverage' %}">Consultar cobertura</a>
+        {% if contact_channels.whatsapp_url %}<a class="text-link" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera confirmar si CW Reparaciones tiene cobertura en mi zona. Mi sector es:" target="_blank" rel="noopener noreferrer">Preguntar por WhatsApp <span aria-hidden="true">↗</span></a>{% endif %}
+      </div>
+    </div>
+    <div class="cw-zone-list" aria-label="Sectores de atención a consultar">
+      {% if coverage_zones %}
+        {% for zone in coverage_zones %}<span>{{ zone.name }}</span>{% endfor %}
+      {% else %}
+        <span>Bello</span><span>Itagüí</span><span>El Poblado</span><span>Sabaneta</span><span>La Estrella</span>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if site_settings.feature_portfolio and portfolio_projects %}
+<section class="section section-tinted cw-portfolio" id="trabajos" aria-labelledby="portfolio-title">
+  <div class="container">
+    <div class="section-heading section-heading-split">
+      <div><p class="eyebrow">Evidencia de servicio</p><h2 id="portfolio-title">Trabajos técnicos reales</h2><p>Intervenciones documentadas con material autorizado.</p></div>
+      <a class="text-link" href="{% url 'website:portfolio_list' %}">Ver todos los casos <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="portfolio-grid cw-portfolio-grid">
+      {% for project in portfolio_projects|slice:":3" %}
+      <article class="project-card">
+        {% for video in project.published_videos|slice:":1" %}
+          {% include "website/partials/portfolio_video.html" with video=video %}
+        {% empty %}
+          {% if project.after_image %}<a href="{% url 'website:portfolio_detail' project.slug %}"><img src="{{ project.after_image.url }}" alt="Imagen posterior documentada: {{ project.title }}" loading="lazy" decoding="async"></a>{% elif project.before_image %}<a href="{% url 'website:portfolio_detail' project.slug %}"><img src="{{ project.before_image.url }}" alt="Equipo documentado: {{ project.title }}" loading="lazy" decoding="async"></a>{% endif %}
+        {% endfor %}
+        <div class="project-card-body">
+          {% if project.equipment %}<p class="eyebrow">{{ project.equipment }}</p>{% endif %}
+          <h3><a href="{% url 'website:portfolio_detail' project.slug %}">{{ project.title }}</a></h3>
+          {% if project.problem %}<p>{{ project.problem|truncatewords:22 }}</p>{% endif %}
+          <a class="text-link" href="{% url 'website:portfolio_detail' project.slug %}">Ver trabajo <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if brand_video %}
+<section class="section cw-brand-film" id="video-cw" aria-labelledby="brand-film-title">
+  <div class="container cw-brand-film-layout">
+    <div class="cw-brand-film-copy">
+      <p class="eyebrow">Conoce la marca</p>
+      <h2 id="brand-film-title">CW Reparaciones también en video.</h2>
+      <p>Esta pieza presenta nuestra marca y equipos técnicos. Los trabajos documentados y sus casos se muestran por separado arriba.</p>
+      <a class="button button-secondary" href="{% url 'website:about' %}#presentacion-video">Ver el video completo</a>
+    </div>
+    <div class="cw-brand-film-media">
+      {% include "website/partials/portfolio_video.html" with video=brand_video %}
+      <p>Vista previa sin sonido. El video completo se reproduce sólo cuando lo eliges.</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if site_settings.feature_diagnostic_form %}
+<section class="section cw-request-section" id="solicitar" aria-labelledby="request-title">
+  <div class="container request-layout">
+    <div class="request-intro">
+      <p class="eyebrow">Solicitud de servicio</p>
+      <h2 id="request-title">Describe el problema una sola vez.</h2>
+      <p>Indica el equipo y la zona, explica lo que sucede y, si quieres, adjunta una foto o video. El envío es una solicitud, no una cita confirmada ni un diagnóstico automático.</p>
+      {% if contact_channels.whatsapp_url %}<a class="text-link" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi la página de CW Reparaciones y necesito solicitar un servicio técnico." target="_blank" rel="noopener noreferrer">Prefiero escribir por WhatsApp <span aria-hidden="true">↗</span></a>{% endif %}
+    </div>
+    <div class="request-form-shell">{% include "website/partials/service_form.html" with request_form=request_form form_context="home" %}</div>
+  </div>
+</section>
+{% endif %}
+
+{% if faqs %}
+<section class="section section-tinted faq-section" id="preguntas" aria-labelledby="faq-title">
+  <div class="container faq-container">
+    <div class="section-heading"><p class="eyebrow">Antes de solicitar</p><h2 id="faq-title">Preguntas frecuentes</h2></div>
+    <div class="faq-list">{% for faq in faqs %}<details class="faq-item"><summary><span>{{ faq.question }}</span><span class="faq-toggle" aria-hidden="true"></span></summary><div class="faq-answer">{{ faq.answer|linebreaks }}</div></details>{% endfor %}</div>
+  </div>
+</section>
+{% endif %}
+
+<section class="final-cta" aria-labelledby="closing-title">
+  <div class="container final-cta-inner">
+    <div><p class="eyebrow eyebrow-on-dark">CW Reparaciones · Servicios Técnicos</p><h2 id="closing-title">¿Tu equipo presenta un problema?</h2><p>Cuéntanos el equipo, lo que sucede y el sector donde estás.</p></div>
+    <div class="final-cta-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera solicitar una revisión para mi equipo. Les comparto el problema y mi zona:" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>{% endif %}
+      {% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}">Llamar al {{ contact_channels.phone }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

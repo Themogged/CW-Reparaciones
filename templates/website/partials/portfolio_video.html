@@ -1,0 +1,20 @@
+{% if video.preview_video and video.poster_image %}
+<div class="cw-video-preview" data-video-preview>
+  <video
+    class="cw-smart-video"
+    data-smart-video
+    data-video-src="{{ video.preview_video.url }}"
+    poster="{{ video.poster_image.url }}"
+    preload="none"
+    muted
+    playsinline
+    loop
+    aria-label="Vista previa de {{ video.title|default:'reparación documentada' }}"
+  ></video>
+  <div class="cw-video-controls">
+    <button type="button" data-video-play aria-label="Reproducir vista previa">Reproducir</button>
+  </div>
+</div>
+{% elif video.poster_image %}
+<img src="{{ video.poster_image.url }}" alt="Vista previa de {{ video.title|default:'reparación documentada' }}" loading="lazy" decoding="async">
+{% endif %}

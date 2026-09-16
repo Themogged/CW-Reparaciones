@@ -1,0 +1,51 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Cobertura de servicio a domicilio · CW Reparaciones{% endblock %}
+{% block meta_description %}Consulta atención a domicilio de CW Reparaciones en Bello, Itagüí, El Poblado, Sabaneta, La Estrella y sectores aledaños del Área Metropolitana. Confirma disponibilidad para tu dirección.{% endblock %}
+{% block social_title %}Cobertura · CW Reparaciones{% endblock %}
+{% block social_description %}Consulta si hay atención de servicio técnico en tu municipio o sector.{% endblock %}
+{% block twitter_title %}Cobertura · CW Reparaciones{% endblock %}
+{% block twitter_description %}Consulta si hay atención de servicio técnico en tu municipio o sector.{% endblock %}
+{% block body_class %}cw-page-coverage{% endblock %}
+
+{% block content %}
+<section class="page-hero cw-page-hero" aria-labelledby="page-title">
+  <div class="container">
+    <nav class="breadcrumbs breadcrumbs-on-dark" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Cobertura</span></nav>
+    <p class="eyebrow eyebrow-on-dark">Servicio a domicilio</p>
+    <h1 id="page-title">Consulta cobertura en tu zona.</h1>
+    <p>CW Reparaciones menciona atención en diferentes sectores del Área Metropolitana. La disponibilidad para un servicio específico se confirma según tu dirección y el equipo.</p>
+    <div class="cw-page-hero-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera confirmar si CW Reparaciones tiene cobertura en mi zona. Mi sector y equipo son:" target="_blank" rel="noopener noreferrer">Consultar por WhatsApp</a>{% endif %}
+      {% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}">Llamar al {{ contact_channels.phone }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section cw-coverage-page-list" aria-labelledby="zone-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Zonas de atención</p><h2 id="zone-title">Sectores del Área Metropolitana.</h2><p>Consulta la disponibilidad para tu barrio, vereda o corregimiento antes de coordinar una visita.</p></div>
+    <div class="cw-zone-list">
+      {% if coverage_zones %}{% for zone in coverage_zones %}<span>{{ zone.name }}</span>{% endfor %}{% else %}<span>Bello</span><span>Itagüí</span><span>El Poblado</span><span>Sabaneta</span><span>La Estrella</span>{% endif %}
+    </div>
+    <p class="cw-coverage-disclaimer">El área de servicio no implica atención inmediata o disponibilidad en todos los sectores. Confírmanos el punto exacto antes de solicitar desplazamiento.</p>
+  </div>
+</section>
+
+{% if site_settings.feature_services %}
+<section class="section section-tinted cw-coverage-services" aria-labelledby="coverage-services-title">
+  <div class="container"><div class="section-heading"><p class="eyebrow">Equipo y ubicación</p><h2 id="coverage-services-title">Indica ambos datos al contactarnos.</h2><p>Así podemos revisar el tipo de servicio que necesitas y la cobertura para la zona.</p></div><a class="button button-secondary" href="{% url 'website:service_list' %}">Ver equipos atendidos</a></div>
+</section>
+{% endif %}
+
+<section class="final-cta" aria-labelledby="coverage-cta-title">
+  <div class="container final-cta-inner">
+    <div><p class="eyebrow eyebrow-on-dark">Consulta directa</p><h2 id="coverage-cta-title">¿Tu sector no aparece?</h2><p>Escríbenos el municipio, barrio o corregimiento, y el equipo que presenta el problema.</p></div>
+    <div class="final-cta-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera confirmar cobertura para mi equipo. Les comparto mi municipio, barrio y tipo de equipo:" target="_blank" rel="noopener noreferrer">Confirmar mi zona</a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="button button-ghost-light" href="{% url 'website:request_service' %}">Enviar solicitud</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

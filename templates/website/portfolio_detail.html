@@ -1,0 +1,92 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}{{ project.title }} · Trabajo real · CW Reparaciones{% endblock %}
+{% block meta_description %}Caso documentado por CW Reparaciones: {{ project.title }}.{% if project.problem %} Problema: {{ project.problem|truncatewords:15 }}.{% endif %} Consulta atención para tu equipo en el Área Metropolitana.{% endblock %}
+{% block social_title %}{{ project.title }} · CW Reparaciones{% endblock %}
+{% block social_description %}Trabajo técnico real documentado por CW Reparaciones.{% endblock %}
+{% block twitter_title %}{{ project.title }} · CW Reparaciones{% endblock %}
+{% block twitter_description %}Trabajo técnico real documentado por CW Reparaciones.{% endblock %}
+{% block body_class %}cw-page-portfolio-detail{% endblock %}
+{% block extra_head %}
+{% for schema in video_schemas %}<script type="application/ld+json">{{ schema|safe }}</script>{% endfor %}
+{% endblock %}
+
+{% block content %}
+<section class="cw-detail-hero cw-case-hero" aria-labelledby="case-title">
+  <div class="container">
+    <nav class="breadcrumbs" aria-label="Migas de pan"><a href="{% url 'website:home' %}">Inicio</a><span aria-hidden="true">/</span><a href="{% url 'website:portfolio_list' %}">Trabajos reales</a><span aria-hidden="true">/</span><span aria-current="page">{{ project.title }}</span></nav>
+    <div class="cw-case-heading">
+      <p class="eyebrow">Caso técnico documentado</p>
+      <h1 id="case-title">{{ project.title }}</h1>
+      <div class="cw-case-meta">
+        {% if project.equipment %}<span>{{ project.equipment }}</span>{% endif %}
+        {% if project.municipality %}<span>{{ project.municipality }}{% if project.sector %} · {{ project.sector }}{% endif %}</span>{% endif %}
+        {% if project.completed_on %}<span>Trabajo registrado: {{ project.completed_on|date:"F Y" }}</span>{% endif %}
+      </div>
+      {% if project.problem %}<p>{{ project.problem|truncatewords:35 }}</p>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% if published_videos %}
+<section class="section cw-case-videos" aria-labelledby="case-videos-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Video del trabajo</p><h2 id="case-videos-title">Observa el proceso documentado.</h2><p>El video completo inicia sólo cuando decides reproducirlo. Puedes controlar la pausa y el sonido.</p></div>
+    <div class="cw-case-video-grid">
+      {% for video in published_videos %}
+      <div class="cw-case-video-item">
+        {% if video.full_video and video.poster_image %}
+        <div class="cw-video-preview cw-full-video" data-video-preview>
+          <video class="cw-smart-video" data-smart-video data-manual-only data-video-src="{{ video.full_video.url }}" poster="{{ video.poster_image.url }}" preload="none" playsinline controls aria-label="Video del caso: {{ video.title|default:project.title }}"></video>
+          <div class="cw-video-controls"><button type="button" data-video-play aria-label="Reproducir video completo">Reproducir video</button></div>
+        </div>
+        {% elif video.preview_video and video.poster_image %}
+          {% include "website/partials/portfolio_video.html" with video=video %}
+        {% elif video.poster_image %}<img src="{{ video.poster_image.url }}" alt="Imagen de vista previa: {{ video.title|default:project.title }}" loading="lazy" decoding="async">{% endif %}
+        {% if video.title %}<h3>{{ video.title }}</h3>{% endif %}
+        {% if video.description %}<p>{{ video.description }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if project.problem or project.diagnosis or project.work_performed or project.result %}
+<section class="section section-tinted cw-case-timeline" aria-labelledby="case-story-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Historia del servicio</p><h2 id="case-story-title">Qué se documentó en este caso.</h2></div>
+    <ol class="cw-case-steps">
+      {% if project.problem %}<li><span>01</span><div><h3>Problema reportado</h3><p>{{ project.problem|linebreaksbr }}</p></div></li>{% endif %}
+      {% if project.diagnosis %}<li><span>02</span><div><h3>Diagnóstico</h3><p>{{ project.diagnosis|linebreaksbr }}</p></div></li>{% endif %}
+      {% if project.work_performed %}<li><span>03</span><div><h3>Trabajo realizado</h3><p>{{ project.work_performed|linebreaksbr }}</p></div></li>{% endif %}
+      {% if project.result %}<li><span>04</span><div><h3>Resultado documentado</h3><p>{{ project.result|linebreaksbr }}</p></div></li>{% endif %}
+    </ol>
+    <p class="cw-process-warning">Este caso describe un trabajo concreto y no representa un diagnóstico ni una garantía de resultado para otros equipos.</p>
+  </div>
+</section>
+{% endif %}
+
+{% if project.before_image or project.after_image %}
+<section class="section cw-case-images" aria-labelledby="case-images-title">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Registro visual</p><h2 id="case-images-title">Imágenes del equipo.</h2></div>
+    <div class="cw-case-image-grid">
+      {% if project.before_image %}<figure><img src="{{ project.before_image.url }}" alt="Equipo antes del trabajo documentado: {{ project.title }}" loading="lazy" decoding="async"><figcaption>Antes</figcaption></figure>{% endif %}
+      {% if project.after_image %}<figure><img src="{{ project.after_image.url }}" alt="Equipo después del trabajo documentado: {{ project.title }}" loading="lazy" decoding="async"><figcaption>Después</figcaption></figure>{% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="final-cta" aria-labelledby="case-cta-title">
+  <div class="container final-cta-inner">
+    <div><p class="eyebrow eyebrow-on-dark">Solicita atención para tu equipo</p><h2 id="case-cta-title">¿Presenta un problema parecido?</h2><p>Cuéntanos el síntoma y tu zona. Tu equipo requiere una revisión individual.</p></div>
+    <div class="final-cta-actions">
+      {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi el trabajo técnico de {{ project.equipment|default:'un equipo' }} y quisiera consultar una revisión para mi equipo. Les comparto el problema y mi zona:" target="_blank" rel="noopener noreferrer">Solicitar revisión por WhatsApp</a>{% endif %}
+      {% if site_settings.feature_diagnostic_form %}<a class="button button-ghost-light" href="{% url 'website:request_service' %}">Enviar solicitud</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
