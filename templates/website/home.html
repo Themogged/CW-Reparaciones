@@ -33,13 +33,13 @@
   <div class="container cw-hero-layout">
     <div class="cw-hero-copy">
       <p class="cw-overline">CW Reparaciones <span>·</span> Servicios Técnicos</p>
-      <h1 id="hero-title">Servicio técnico para tu <span>hogar y negocio.</span></h1>
-      <p class="cw-hero-lead">Revisión y reparación de diferentes equipos domésticos e industriales con servicio a domicilio en sectores del Área Metropolitana.</p>
-      <div class="cw-hero-actions">
-        {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, quisiera solicitar un servicio técnico. Les comparto el equipo, el problema y mi zona a continuación:" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg> Solicitar por WhatsApp</a>{% endif %}
-        {% if contact_channels.phone_url %}<a class="button button-ghost-light" href="{{ contact_channels.phone_url }}"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-phone"></use></svg> Llamar ahora</a>{% endif %}
-        {% if site_settings.feature_diagnostic_form %}<a class="cw-hero-form-link" href="{% url 'website:request_service' %}">O enviar una solicitud con fotos o video <span aria-hidden="true">→</span></a>{% endif %}
-      </div>
+      <h1 id="hero-title">Servicio técnico para equipos de tu <span>hogar y negocio.</span></h1>
+      <p class="cw-hero-lead">Cuéntanos qué equipo presenta la falla. Atendemos equipos domésticos e industriales a domicilio en sectores del Área Metropolitana.</p>
+      <ul class="cw-hero-trust" aria-label="Características del servicio">
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-home"></use></svg><span>Servicio a domicilio</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg><span>Hogar e industria</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Trabajos documentados</span></li>
+      </ul>
       {% if site_settings.feature_portfolio and portfolio_projects %}
         {% for project in portfolio_projects|slice:":1" %}
           {% for video in project.published_videos|slice:":1" %}
@@ -54,7 +54,7 @@
           {% endfor %}
         {% endfor %}
       {% endif %}
-      <p class="cw-hero-microcopy">Cuéntanos qué equipo presenta el problema y en qué zona te encuentras.</p>
+      <p class="cw-hero-microcopy"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check"></use></svg><span>Comparte el equipo, la falla y tu zona para coordinar la revisión.</span></p>
     </div>
     <div class="cw-hero-panel" aria-label="Información del servicio">
       <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Atención para equipos domésticos e industriales</span></div>

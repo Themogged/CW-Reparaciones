@@ -22,9 +22,9 @@
     <meta name="color-scheme" content="light">
     {% block robots_meta %}{% endblock %}
     <link rel="icon" href="{% static 'website/images/favicon.svg' %}" type="image/svg+xml">
-    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20260915-v6" as="style">
-    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20260915-v6">
-    <script defer src="{% static 'website/js/main.js' %}?v=20260915-v6"></script>
+    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20260916-v7" as="style">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20260916-v7">
+    <script defer src="{% static 'website/js/main.js' %}?v=20260916-v7"></script>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -178,18 +178,18 @@
         {% if contact_channels.whatsapp_url %}
             <a class="sticky-action sticky-whatsapp" href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Solicitar servicio por WhatsApp">
                 <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg>
-                <span>WhatsApp</span>
+                <span class="sticky-action-copy"><strong>WhatsApp</strong><small>Solicitar servicio</small></span>
             </a>
         {% endif %}
         {% if contact_channels.phone_url %}
-            <a class="sticky-action" href="{{ contact_channels.phone_url }}">
+            <a class="sticky-action sticky-call" href="{{ contact_channels.phone_url }}" aria-label="Llamar a CW Reparaciones">
                 <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-phone"></use></svg>
-                <span>Llamar</span>
+                <span class="sticky-action-copy"><strong>Llamar</strong><small>Hablar ahora</small></span>
             </a>
         {% endif %}
-        {% if site_settings.feature_diagnostic_form and not contact_channels.phone_url %}<a class="sticky-action sticky-primary" href="{% url 'website:request_service' %}">
+        {% if site_settings.feature_diagnostic_form and not contact_channels.phone_url %}<a class="sticky-action sticky-primary" href="{% url 'website:request_service' %}" aria-label="Enviar una solicitud de servicio">
             <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg>
-            <span>Solicitar</span>
+            <span class="sticky-action-copy"><strong>Solicitar</strong><small>Enviar detalles</small></span>
         </a>{% endif %}
     </div>
     {% endif %}
