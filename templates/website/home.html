@@ -33,28 +33,12 @@
   <div class="container cw-hero-layout">
     <div class="cw-hero-copy">
       <p class="cw-overline">CW Reparaciones <span>·</span> Servicios Técnicos</p>
-      <h1 id="hero-title">Servicio técnico para equipos de tu <span>hogar y negocio.</span></h1>
-      <p class="cw-hero-lead">Cuéntanos qué equipo presenta la falla. Atendemos equipos domésticos e industriales a domicilio en sectores del Área Metropolitana.</p>
+      <h1 id="hero-title">Servicio técnico para tu <span>hogar y negocio.</span></h1>
+      <p class="cw-hero-lead">Atención a domicilio para equipos domésticos e industriales en sectores del Área Metropolitana.</p>
       <ul class="cw-hero-trust" aria-label="Características del servicio">
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-home"></use></svg><span>Servicio a domicilio</span></li>
-        <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg><span>Hogar e industria</span></li>
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Trabajos documentados</span></li>
       </ul>
-      {% if site_settings.feature_portfolio and portfolio_projects %}
-        {% for project in portfolio_projects|slice:":1" %}
-          {% for video in project.published_videos|slice:":1" %}
-          <div class="cw-hero-proof" aria-label="Trabajo técnico real documentado">
-            <div class="cw-hero-proof-media">{% include "website/partials/portfolio_video.html" with video=video %}</div>
-            <div class="cw-hero-proof-copy">
-              <span>Trabajo real · CW Reparaciones</span>
-              <strong>{{ project.title }}</strong>
-              <a href="{% url 'website:portfolio_detail' project.slug %}">Ver el caso completo <span aria-hidden="true">↗</span></a>
-            </div>
-          </div>
-          {% endfor %}
-        {% endfor %}
-      {% endif %}
-      <p class="cw-hero-microcopy"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check"></use></svg><span>Comparte el equipo, la falla y tu zona para coordinar la revisión.</span></p>
     </div>
     <div class="cw-hero-panel" aria-label="Información del servicio">
       <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Atención para equipos domésticos e industriales</span></div>

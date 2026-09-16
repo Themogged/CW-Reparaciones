@@ -1,9 +1,10 @@
 {% load static %}
 <article class="service-card cw-service-card">
-    {% if service.image %}<a class="cw-service-card-image" href="{% url 'website:service_detail' service.slug %}"><img src="{{ service.image.url }}" alt="Equipo relacionado con {{ service.name }}" loading="lazy" decoding="async"></a>{% endif %}
+    {% if service.image %}<a class="cw-service-card-image" href="{% url 'website:service_detail' service.slug %}"><img src="{{ service.image.url }}" alt="Equipo relacionado con {{ service.name }}" loading="lazy" decoding="async"></a>{% else %}
     <div class="service-card-icon" aria-hidden="true">
         <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{{ service.icon_key|default:'tool' }}"></use></svg>
     </div>
+    {% endif %}
     {% if service.category %}<p class="eyebrow service-card-category">{{ service.category }}</p>{% endif %}
     <h3><a href="{% url 'website:service_detail' service.slug %}">{{ service.name }}</a></h3>
     {% if service.short_description %}<p>{{ service.short_description }}</p>{% endif %}
