@@ -44,7 +44,7 @@ class CommercialV1Tests(TestCase):
         def business_data():
             response = self.client.get(reverse("website:home"))
             match = re.search(
-                r'<script type="application/ld\+json">(.*?)</script>',
+                r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
                 response.content.decode("utf-8"),
                 re.DOTALL,
             )
@@ -158,7 +158,7 @@ class CommercialV1Tests(TestCase):
         )
         response = self.client.get(reverse("website:portfolio_detail", args=(project.slug,)))
         scripts = re.findall(
-            r'<script type="application/ld\+json">(.*?)</script>',
+            r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
             response.content.decode("utf-8"),
             re.DOTALL,
         )
@@ -195,7 +195,7 @@ class CommercialV1Tests(TestCase):
         self.assertContains(about, "Video de presentación")
         self.assertNotContains(self.client.get(reverse("website:portfolio_list")), "Video de presentación")
         scripts = re.findall(
-            r'<script type="application/ld\+json">(.*?)</script>',
+            r'<script type="application/ld\+json"[^>]*>(.*?)</script>',
             about.content.decode("utf-8"),
             re.DOTALL,
         )

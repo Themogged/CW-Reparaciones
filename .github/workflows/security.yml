@@ -1,0 +1,42 @@
+name: Security checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  django-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Validate dependency environment
+        run: python -m pip check
+      - name: Check migrations
+        run: python manage.py makemigrations --check --dry-run
+      - name: Run tests
+        run: python manage.py test --noinput
+      - name: Check production security settings
+        env:
+          DJANGO_DEBUG: "false"
+          DJANGO_SECRET_KEY: "ci-only-long-random-placeholder-7d3a9f1c8b4e6d2a5f0c9b1e"
+          DJANGO_ALLOWED_HOSTS: "cwreparaciones.pythonanywhere.com"
+          DJANGO_CSRF_TRUSTED_ORIGINS: "https://cwreparaciones.pythonanywhere.com"
+          DJANGO_TRUST_X_REAL_IP: "true"
+          DJANGO_TRUST_PROXY_SSL_HEADER: "true"
+          # Estas dos excepciones se prueban activas solo en CI. En el dominio
+          # compartido de PythonAnywhere deben seguir siendo opt-in.
+          DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: "true"
+          DJANGO_SECURE_HSTS_PRELOAD: "true"
+        run: python manage.py check --deploy --fail-level WARNING

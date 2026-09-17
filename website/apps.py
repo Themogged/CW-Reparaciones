@@ -6,3 +6,5 @@ class WebsiteConfig(AppConfig):
     name = "website"
     verbose_name = "Sitio web"
 
+    def ready(self) -> None:
+        from . import checks  # noqa: F401

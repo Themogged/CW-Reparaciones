@@ -107,7 +107,7 @@ originales privados. Configure en la pestaña Web de PythonAnywhere los mapeos
 `/static/` → el `STATIC_ROOT` absoluto y `/media/` → el `MEDIA_ROOT` absoluto.
 Nunca sirva `private_uploads/` como ruta estática.
 
-Este proyecto usa Django 6.1 y requiere Python 3.12 o superior; compruebe la
+Este proyecto usa Django 6.1 y Pillow 12.3, y requiere Python 3.12 o superior; compruebe la
 imagen del sistema de la cuenta y elija la misma versión de Python para la web
 y su virtualenv. Configure el WSGI de la pestaña Web para importar
 `cvww_proyect.settings` desde el directorio que contiene `manage.py`. Inyecte
@@ -137,6 +137,45 @@ compartida para que el rate limit sea global. Verifique el IP entregado por el
 proxy, defina retención y análisis antimalware, y asegure persistencia/backup de
 base de datos, `media/` y `private_uploads/` antes de abrir el formulario al público.
 
+### Despliegue seguro en PythonAnywhere
+
+Antes de recargar la aplicación, cree y seleccione un entorno virtual real:
+
+```bash
+python3.13 -m venv /home/CWreparaciones/.virtualenvs/cw-reparaciones
+source /home/CWreparaciones/.virtualenvs/cw-reparaciones/bin/activate
+cd /home/CWreparaciones/CW-Reparaciones
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py check --deploy
+```
+
+En la pestaña **Web**, configure el campo Virtualenv con
+`/home/CWreparaciones/.virtualenvs/cw-reparaciones`. En PythonAnywhere también
+debe definir `DJANGO_TRUST_X_REAL_IP=true`, porque el proxy entrega la IP del
+visitante mediante `X-Real-IP`; el valor permanece desactivado por defecto para
+que esa cabecera no pueda falsificarse en otros proveedores. Active
+`DJANGO_TRUST_PROXY_SSL_HEADER=true` solo después de verificar que HTTPS se
+detecta correctamente y no produce un bucle de redirecciones.
+
+La migración `0009_securityratelimitbucket` debe ejecutarse antes del Reload:
+comparte los límites del formulario y del login administrativo entre todos los
+workers sin guardar IP ni usuario en texto legible. El acceso administrativo se
+limita de forma independiente por IP, cuenta objetivo y combinación IP-cuenta,
+para cubrir tanto fuerza bruta local como distribuida. Haga una copia de
+`db.sqlite3` y `private_uploads/` antes de migrar. Puede cambiar la ruta visible
+del administrador con `DJANGO_ADMIN_URL`; esto reduce escaneo automatizado, pero
+no sustituye contraseña única, gestor de contraseñas ni MFA de la cuenta de
+hosting.
+
+La aplicación aplica CSP estricta con nonce, sesiones de ocho horas cerradas al
+salir del navegador, cookies `__Host-` bajo HTTPS, límites de cuerpo/archivos,
+validación decodificada de imágenes y estructura MP4. El proxy web sigue siendo
+la capa correcta para fijar un límite total del cuerpo antes de que llegue a
+Django. Para adjuntos de clientes se recomienda además análisis antimalware y
+una política operativa de retención/borrado.
+
 ## Variables de entorno
 
 Copie `.env.example` como referencia y configure las variables en el proveedor
@@ -151,6 +190,8 @@ Como mínimo en producción:
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
 - `DJANGO_TIME_ZONE=America/Bogota`
+- `DJANGO_TRUST_X_REAL_IP=true` en PythonAnywhere
+- `DJANGO_TRUST_PROXY_SSL_HEADER=true` después de validar HTTPS
 - destinatario, remitente y credenciales SMTP si se habilitan notificaciones
 
 No active HSTS con subdominios o preload hasta confirmar que todo el dominio se

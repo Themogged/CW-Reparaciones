@@ -9,7 +9,7 @@
 {% block twitter_description %}Trabajo técnico real documentado por CW Reparaciones.{% endblock %}
 {% block body_class %}cw-page-portfolio-detail{% endblock %}
 {% block extra_head %}
-{% for schema in video_schemas %}<script type="application/ld+json">{{ schema|safe }}</script>{% endfor %}
+{% for schema in video_schemas %}<script type="application/ld+json" {% csp_nonce_attr %}>{{ schema|safe }}</script>{% endfor %}
 {% endblock %}
 
 {% block content %}

@@ -15,6 +15,7 @@ from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.debug import sensitive_post_parameters
 
 from .forms import ServiceRequestForm
 from .models import (
@@ -383,42 +384,33 @@ def _notify_new_request(service_request: ServiceRequest) -> None:
         logger.exception("No se pudo enviar la notificación interna de la solicitud %s", service_request.pk)
 
 
+@sensitive_post_parameters()
 @require_POST
 def submit_request(request: HttpRequest) -> HttpResponse:
     settings_object = SiteSettings.load()
     if not settings_object.feature_diagnostic_form:
         raise Http404("El formulario de solicitudes no está habilitado.")
 
-    # El honeypot recibe una respuesta indistinguible, pero nunca persiste datos.
+    rate_limit = consume_service_request_limit(request)
+    if rate_limit.limited:
+        response = HttpResponse(
+            "Se alcanzó el límite temporal de solicitudes.",
+            status=429,
+            content_type="text/plain; charset=utf-8",
+        )
+        response["Retry-After"] = str(rate_limit.retry_after_seconds)
+        response["Cache-Control"] = "private, no-store"
+        response["X-Robots-Tag"] = "noindex, nofollow"
+        return response
+
+    # El honeypot recibe una respuesta indistinguible, pero también consume el
+    # límite para impedir que se use como endpoint de carga ilimitada.
     if request.POST.get("website"):
         return redirect("website:request_success")
 
-    rate_limit = consume_service_request_limit(request)
     form = ServiceRequestForm(request.POST, request.FILES)
     if not settings_object.feature_services:
         form.fields["service"].queryset = Service.objects.none()
-    if rate_limit.limited:
-        form.is_valid()
-        form.add_error(
-            None,
-            "Se alcanzó el límite temporal de solicitudes. Inténtalo de nuevo más tarde.",
-        )
-        response = render(
-            request,
-            "website/request_service.html",
-            {
-                "request_form": form,
-                "services": (
-                    _active_services()
-                    if settings_object.feature_services
-                    else Service.objects.none()
-                ),
-            },
-            status=429,
-        )
-        response["Retry-After"] = str(rate_limit.window_seconds)
-        return response
-
     if not form.is_valid():
         return render(
             request,
@@ -460,6 +452,8 @@ def request_success(request: HttpRequest) -> HttpResponse:
         },
     )
     response["X-Robots-Tag"] = "noindex, nofollow"
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["Pragma"] = "no-cache"
     return response
 
 
@@ -479,7 +473,6 @@ def robots(request: HttpRequest) -> HttpResponse:
     content = "\n".join(
         (
             "User-agent: *",
-            "Disallow: /admin/",
             "Disallow: /solicitudes/",
             f"Sitemap: {sitemap_url}",
             "",

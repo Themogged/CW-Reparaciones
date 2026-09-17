@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import io
 import re
+import warnings
 from pathlib import Path
 from typing import BinaryIO
 
 from django.core.exceptions import ValidationError
+from PIL import Image, UnidentifiedImageError
 
 
 MEBIBYTE = 1024 * 1024
@@ -12,6 +15,7 @@ MAX_IMAGE_SIZE = 8 * MEBIBYTE
 MAX_VIDEO_SIZE = 20 * MEBIBYTE
 MAX_PUBLIC_VIDEO_SIZE = 30 * MEBIBYTE
 MAX_PRIVATE_VIDEO_SIZE = 250 * MEBIBYTE
+MAX_IMAGE_PIXELS = 40_000_000
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 VIDEO_EXTENSIONS = {".mp4"}
@@ -92,6 +96,92 @@ def _detected_kind(head: bytes, tail: bytes, size: int) -> str | None:
     return None
 
 
+def _validate_decodable_image(uploaded_file: BinaryIO, expected_kind: str) -> None:
+    original_position = uploaded_file.tell()
+    try:
+        uploaded_file.seek(0)
+        payload = uploaded_file.read(MAX_IMAGE_SIZE + 1)
+    finally:
+        uploaded_file.seek(original_position)
+
+    expected_format = {"jpeg": "JPEG", "png": "PNG", "webp": "WEBP"}[expected_kind]
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(io.BytesIO(payload)) as image:
+                width, height = image.size
+                if image.format != expected_format:
+                    raise ValidationError(
+                        "El contenido de la imagen no coincide con su extensión.",
+                        code="invalid_image_format",
+                    )
+                if width <= 0 or height <= 0 or width * height > MAX_IMAGE_PIXELS:
+                    raise ValidationError(
+                        "La imagen tiene dimensiones no permitidas.",
+                        code="unsafe_image_dimensions",
+                    )
+                image.verify()
+    except ValidationError:
+        raise
+    except (
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+        UnidentifiedImageError,
+        OSError,
+        SyntaxError,
+        ValueError,
+    ) as exc:
+        raise ValidationError(
+            "La imagen está dañada o no puede validarse de forma segura.",
+            code="invalid_image_payload",
+        ) from exc
+
+
+def _validate_mp4_structure(uploaded_file: BinaryIO, size: int) -> None:
+    original_position = uploaded_file.tell()
+    offset = 0
+    boxes: set[bytes] = set()
+    try:
+        while offset + 8 <= size:
+            uploaded_file.seek(offset)
+            header = uploaded_file.read(16)
+            if len(header) < 8:
+                break
+
+            box_size = int.from_bytes(header[:4], byteorder="big", signed=False)
+            box_type = header[4:8]
+            header_size = 8
+            if box_size == 1:
+                if len(header) < 16:
+                    break
+                box_size = int.from_bytes(header[8:16], byteorder="big", signed=False)
+                header_size = 16
+            elif box_size == 0:
+                box_size = size - offset
+
+            if box_size < header_size or offset + box_size > size:
+                break
+            boxes.add(box_type)
+            offset += box_size
+            if box_size == 0:
+                break
+    except (AttributeError, OSError, ValueError) as exc:
+        raise ValidationError(
+            "No se pudo inspeccionar la estructura del video.",
+            code="unreadable_video",
+        ) from exc
+    finally:
+        uploaded_file.seek(original_position)
+
+    if offset != size or b"ftyp" not in boxes or b"moov" not in boxes or not (
+        {b"mdat", b"moof"} & boxes
+    ):
+        raise ValidationError(
+            "El video MP4 está incompleto o tiene una estructura no válida.",
+            code="invalid_video_structure",
+        )
+
+
 def _validate_upload(
     uploaded_file: BinaryIO, *, allow_video: bool, video_size_limit: int = MAX_VIDEO_SIZE
 ) -> None:
@@ -133,6 +223,11 @@ def _validate_upload(
             "El contenido del archivo no coincide con su extensión.",
             code="invalid_signature",
         )
+
+    if detected_kind == "mp4":
+        _validate_mp4_structure(uploaded_file, size)
+    else:
+        _validate_decodable_image(uploaded_file, detected_kind)
 
     content_type = str(getattr(uploaded_file, "content_type", "") or "").lower()
     if content_type and content_type not in MIME_BY_KIND[detected_kind]:

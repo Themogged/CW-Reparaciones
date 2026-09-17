@@ -1,9 +1,9 @@
-import base64
 import io
 
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.test import SimpleTestCase
+from PIL import Image
 
 from website.validators import (
     MAX_IMAGE_SIZE,
@@ -12,12 +12,20 @@ from website.validators import (
 )
 
 
-VALID_JPEG = b"\xff\xd8\xff\xe0" + b"jpeg-data" + b"\xff\xd9"
-VALID_PNG = base64.b64decode(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+def _image_bytes(image_format: str) -> bytes:
+    output = io.BytesIO()
+    Image.new("RGB", (2, 2), (12, 56, 90)).save(output, format=image_format)
+    return output.getvalue()
+
+
+VALID_JPEG = _image_bytes("JPEG")
+VALID_PNG = _image_bytes("PNG")
+VALID_WEBP = _image_bytes("WEBP")
+VALID_MP4 = (
+    b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isommp41"
+    b"\x00\x00\x00\x08moov"
+    b"\x00\x00\x00\x08mdat"
 )
-VALID_WEBP = b"RIFF\x0c\x00\x00\x00WEBPVP8 \x00\x00\x00\x00"
-VALID_MP4 = b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isommp41"
 
 
 class UploadValidatorTests(SimpleTestCase):
@@ -57,6 +65,24 @@ class UploadValidatorTests(SimpleTestCase):
         )
         with self.assertRaisesMessage(ValidationError, "no coincide"):
             validate_image_upload(upload)
+
+    def test_rejects_image_with_valid_edges_but_invalid_payload(self):
+        upload = SimpleUploadedFile(
+            "fake.jpg",
+            b"\xff\xd8\xff\xe0not-a-decodable-image\xff\xd9",
+            content_type="image/jpeg",
+        )
+        with self.assertRaisesMessage(ValidationError, "dañada"):
+            validate_image_upload(upload)
+
+    def test_rejects_mp4_with_only_file_type_box(self):
+        upload = SimpleUploadedFile(
+            "incomplete.mp4",
+            b"\x00\x00\x00\x18ftypisom\x00\x00\x02\x00isommp41",
+            content_type="video/mp4",
+        )
+        with self.assertRaisesMessage(ValidationError, "incompleto"):
+            validate_diagnostic_media(upload)
 
     def test_rejects_phone_with_embedded_newline_or_misplaced_plus(self):
         from website.validators import validate_phone_number

@@ -10,14 +10,30 @@ htmlcov/
 .venv/
 venv/
 .env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Django runtime
 db.sqlite3
 db.sqlite3-journal
+*.sqlite3
+*.sqlite3-*
+*.sqlite3.*
+*.db
+*.bak
+*.backup
+*.dump
+*.log
 media/
 private_uploads/
 staticfiles/
 media_work/
+.django-cache/
 
 # Editors and operating systems
 .idea/

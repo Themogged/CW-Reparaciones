@@ -11,7 +11,7 @@
 
 {% block extra_head %}
 {% if canonical_url %}
-<script type="application/ld+json">
+<script type="application/ld+json" {% csp_nonce_attr %}>
 {
   "@context": "https://schema.org",
   "@type": "Service",

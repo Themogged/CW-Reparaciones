@@ -886,3 +886,19 @@ class ServiceRequest(models.Model):
         if self.privacy_accepted and self.consented_at is None:
             self.consented_at = timezone.now()
         super().save(*args, **kwargs)
+
+
+class SecurityRateLimitBucket(models.Model):
+    """Contador seudonimizado y compartido entre procesos para frenar abuso."""
+
+    key = models.CharField(max_length=64, primary_key=True, editable=False)
+    scope = models.CharField(max_length=48, db_index=True, editable=False)
+    count = models.PositiveIntegerField(default=1, editable=False)
+    expires_at = models.DateTimeField(db_index=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+        db_table = "website_security_rate_limit"
+        default_permissions = ()
+        verbose_name = "contador interno de seguridad"
+        verbose_name_plural = "contadores internos de seguridad"

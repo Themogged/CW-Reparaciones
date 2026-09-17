@@ -474,7 +474,14 @@
   .form-progress { margin-bottom: 1.7rem; }
   .form-progress-copy { display: flex; justify-content: space-between; margin-bottom: .5rem; color: var(--text-secondary); font-size: .8rem; font-weight: 700; }
   .form-progress-track { height: 7px; overflow: hidden; border-radius: 999px; background: var(--border); }
-  .form-progress-track > span { display: block; width: var(--form-progress, 16.666%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange-500), var(--orange-400)); transition: width 260ms var(--ease); }
+  .form-progress-track > span { display: block; width: 14.286%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange-500), var(--orange-400)); transition: width 260ms var(--ease); }
+  .form-progress.is-progress-1 .form-progress-track > span { width: 14.286%; }
+  .form-progress.is-progress-2 .form-progress-track > span { width: 28.571%; }
+  .form-progress.is-progress-3 .form-progress-track > span { width: 42.857%; }
+  .form-progress.is-progress-4 .form-progress-track > span { width: 57.143%; }
+  .form-progress.is-progress-5 .form-progress-track > span { width: 71.429%; }
+  .form-progress.is-progress-6 .form-progress-track > span { width: 85.714%; }
+  .form-progress.is-progress-7 .form-progress-track > span { width: 100%; }
   .no-js .form-progress { display: none; }
   .form-step { padding: 0; border: 0; }
   .form-step + .form-step { margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem; }

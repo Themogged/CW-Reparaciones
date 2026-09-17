@@ -1,8 +1,7 @@
-from django.core.cache import cache
 from django.test import RequestFactory, TestCase, override_settings
 
 from website.context_processors import site_context
-from website.models import SiteSettings
+from website.models import SecurityRateLimitBucket, SiteSettings
 from website.rate_limits import consume_service_request_limit, get_remote_address
 
 
@@ -37,17 +36,32 @@ class ContextProcessorTests(TestCase):
 
 class RateLimitTests(TestCase):
     def setUp(self):
-        cache.clear()
         self.factory = RequestFactory()
-
-    def tearDown(self):
-        cache.clear()
 
     def test_uses_remote_addr_and_ignores_forwarded_header(self):
         request = self.factory.post(
             "/solicitar-servicio/",
             REMOTE_ADDR="192.0.2.10",
             HTTP_X_FORWARDED_FOR="203.0.113.15",
+        )
+        self.assertEqual(get_remote_address(request), "192.0.2.10")
+
+    @override_settings(WEBSITE_TRUST_X_REAL_IP=True)
+    def test_uses_valid_x_real_ip_only_when_proxy_is_trusted(self):
+        request = self.factory.post(
+            "/solicitar-servicio/",
+            REMOTE_ADDR="192.0.2.10",
+            HTTP_X_REAL_IP="2001:0db8:0:0:0:0:0:5",
+            HTTP_X_FORWARDED_FOR="203.0.113.15",
+        )
+        self.assertEqual(get_remote_address(request), "2001:db8::5")
+
+    @override_settings(WEBSITE_TRUST_X_REAL_IP=True)
+    def test_invalid_x_real_ip_falls_back_to_remote_addr(self):
+        request = self.factory.post(
+            "/solicitar-servicio/",
+            REMOTE_ADDR="192.0.2.10",
+            HTTP_X_REAL_IP="not-an-ip",
         )
         self.assertEqual(get_remote_address(request), "192.0.2.10")
 
@@ -59,3 +73,6 @@ class RateLimitTests(TestCase):
         result = consume_service_request_limit(request)
         self.assertTrue(result.limited)
         self.assertEqual(result.count, 3)
+        self.assertGreaterEqual(result.retry_after_seconds, 1)
+        bucket = SecurityRateLimitBucket.objects.get(scope="service-request")
+        self.assertNotIn("192.0.2.20", bucket.key)

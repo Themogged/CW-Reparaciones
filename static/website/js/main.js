@@ -24,6 +24,12 @@
     callback();
   };
 
+  const setupReloadControls = () => {
+    document.querySelectorAll("[data-reload-page]").forEach((control) => {
+      control.addEventListener("click", () => window.location.reload());
+    });
+  };
+
   const getFocusableElements = (container) =>
     Array.from(
       container.querySelectorAll(
@@ -94,32 +100,15 @@
     let isOpen = false;
     let previouslyFocused = null;
     let lockedScrollY = 0;
-    let previousBodyStyles = null;
 
     const lockBody = () => {
       lockedScrollY = window.scrollY;
-      previousBodyStyles = {
-        position: document.body.style.position,
-        top: document.body.style.top,
-        width: document.body.style.width,
-        overflow: document.body.style.overflow,
-      };
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${lockedScrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
       document.body.classList.add("menu-open");
     };
 
     const unlockBody = () => {
-      if (!previousBodyStyles) return;
-      document.body.style.position = previousBodyStyles.position;
-      document.body.style.top = previousBodyStyles.top;
-      document.body.style.width = previousBodyStyles.width;
-      document.body.style.overflow = previousBodyStyles.overflow;
       document.body.classList.remove("menu-open");
       window.scrollTo(0, lockedScrollY);
-      previousBodyStyles = null;
     };
 
     const openMenu = () => {
@@ -574,7 +563,12 @@
       const humanStep = currentStep + 1;
       const percent = Math.round((humanStep / steps.length) * 100);
 
-      progressContainer.style.setProperty("--form-progress", `${percent}%`);
+      for (let stepNumber = 1; stepNumber <= steps.length; stepNumber += 1) {
+        progressContainer.classList.toggle(
+          `is-progress-${stepNumber}`,
+          stepNumber === humanStep,
+        );
+      }
       if (progressBar) {
         if (progressBar.matches("progress")) {
           progressBar.setAttribute("max", String(steps.length));
@@ -586,7 +580,6 @@
         }
         progressBar.setAttribute("aria-valuetext", `Paso ${humanStep} de ${steps.length}`);
       }
-      if (progressFill) progressFill.style.width = `${percent}%`;
       if (progressText) progressText.textContent = `Paso ${humanStep} de ${steps.length}`;
       if (progressPercent) progressPercent.textContent = `${percent}%`;
 
@@ -1167,6 +1160,7 @@
   };
 
   onReady(() => {
+    setupReloadControls();
     setupHeader();
     setupMobileMenu();
     setupMobileKeyboard();

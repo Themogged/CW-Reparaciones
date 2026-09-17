@@ -8,7 +8,7 @@
 {% block twitter_title %}Nosotros · {{ site_settings.brand_name|default:"CW Reparaciones" }}{% endblock %}
 {% block twitter_description %}Conoce el enfoque profesional, organizado y cercano de CW Reparaciones.{% endblock %}
 {% block body_class %}page-about{% endblock %}
-{% block extra_head %}{% if brand_video_schema %}<script type="application/ld+json">{{ brand_video_schema|safe }}</script>{% endif %}{% endblock %}
+{% block extra_head %}{% if brand_video_schema %}<script type="application/ld+json" {% csp_nonce_attr %}>{{ brand_video_schema|safe }}</script>{% endif %}{% endblock %}
 
 {% block content %}
 <section class="page-hero page-hero-about" aria-labelledby="page-title">
