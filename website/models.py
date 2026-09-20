@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import unicodedata
 import uuid
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -43,6 +45,17 @@ def private_request_upload_to(instance: "ServiceRequest", filename: str) -> str:
         f"service_requests/{created:%Y/%m}/"
         f"{instance.pk.hex}{normalized_extension}"
     )
+
+
+def normalize_contact_value(value: str) -> str:
+    """Normaliza datos de contacto sin alterar el valor presentado al usuario."""
+    normalized = unicodedata.normalize("NFKC", value or "").strip().casefold()
+    if "@" in normalized:
+        return "".join(normalized.split())
+    digits = "".join(character for character in normalized if character.isdigit())
+    if len(digits) == 12 and digits.startswith("57"):
+        return digits[2:]
+    return digits
 
 
 class SiteSettings(models.Model):
@@ -789,6 +802,22 @@ class ServiceRequest(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ticket_number = models.CharField(max_length=50, unique=True, blank=True, null=True, editable=False, verbose_name="Número CW")
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.SET_NULL,
+        related_name="service_requests",
+        blank=True,
+        null=True,
+        verbose_name="Cliente",
+    )
+    assigned_technician = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="assigned_service_requests",
+        blank=True,
+        null=True,
+        verbose_name="Técnico asignado",
+    )
     service = models.ForeignKey(
         Service,
         on_delete=models.SET_NULL,
@@ -851,6 +880,12 @@ class ServiceRequest(models.Model):
         max_length=20, choices=Status.choices, default=Status.NEW, db_index=True
     )
     internal_notes = models.TextField(blank=True, verbose_name="Notas internas")
+    technical_notes = models.TextField(blank=True, verbose_name="Notas técnicas")
+    scheduled_start = models.DateTimeField(blank=True, null=True, verbose_name="Visita programada")
+    completed_at = models.DateTimeField(blank=True, null=True, verbose_name="Finalizada el")
+    version = models.PositiveIntegerField(default=1, editable=False)
+    is_deleted = models.BooleanField(default=False, db_index=True, verbose_name="En papelera")
+    deleted_at = models.DateTimeField(blank=True, null=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -862,6 +897,16 @@ class ServiceRequest(models.Model):
                 name="website_request_privacy_accepted",
             )
         ]
+        indexes = [
+            models.Index(fields=("status", "created_at"), name="website_req_status_created"),
+            models.Index(fields=("assigned_technician", "status"), name="website_req_tech_status"),
+        ]
+        permissions = (
+            ("assign_servicerequest", "Puede asignar solicitudes a técnicos"),
+            ("export_servicerequest", "Puede exportar solicitudes"),
+            ("view_all_servicerequest", "Puede ver todas las solicitudes"),
+            ("restore_servicerequest", "Puede restaurar solicitudes de la papelera"),
+        )
         verbose_name = "solicitud de servicio"
         verbose_name_plural = "solicitudes de servicio"
 
@@ -881,11 +926,416 @@ class ServiceRequest(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs) -> None:
+        creating = self._state.adding
+        previous_status = None
+        if not creating:
+            previous_status = type(self).objects.filter(pk=self.pk).values_list("status", flat=True).first()
+            self.version += 1
         if not self.ticket_number:
-            self.ticket_number = f"CW-{timezone.localdate().year}-{self.pk.hex.upper()}"
+            self.ticket_number = TicketSequence.allocate(timezone.localdate().year)
+        if self.customer_id is None:
+            self.customer = Customer.resolve(
+                name=self.name,
+                phone=self.phone,
+                whatsapp=self.whatsapp,
+                email=self.email,
+                municipality=self.municipality,
+                sector=self.sector,
+                address=self.address,
+            )
         if self.privacy_accepted and self.consented_at is None:
             self.consented_at = timezone.now()
+        if self.status == self.Status.COMPLETED and self.completed_at is None:
+            self.completed_at = timezone.now()
+        if self.status != self.Status.COMPLETED:
+            self.completed_at = None
         super().save(*args, **kwargs)
+        if creating:
+            ServiceRequestEvent.objects.create(
+                service_request=self,
+                event_type=ServiceRequestEvent.EventType.CREATED,
+                description="Solicitud registrada.",
+                metadata={"status": self.status},
+            )
+        elif previous_status and previous_status != self.status:
+            ServiceRequestEvent.objects.create(
+                service_request=self,
+                event_type=ServiceRequestEvent.EventType.STATUS_CHANGED,
+                description=f"Estado actualizado de {previous_status} a {self.status}.",
+                metadata={"from": previous_status, "to": self.status},
+            )
+
+    def move_to_trash(self) -> None:
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save(update_fields=("is_deleted", "deleted_at", "updated_at"))
+
+    def restore_from_trash(self) -> None:
+        self.is_deleted = False
+        self.deleted_at = None
+        self.save(update_fields=("is_deleted", "deleted_at", "updated_at"))
+
+
+class TicketSequence(models.Model):
+    year = models.PositiveSmallIntegerField(primary_key=True)
+    next_value = models.PositiveIntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        default_permissions = ()
+        verbose_name = "secuencia de ticket"
+        verbose_name_plural = "secuencias de tickets"
+
+    @classmethod
+    def allocate(cls, year: int) -> str:
+        with transaction.atomic():
+            sequence, _ = cls.objects.select_for_update().get_or_create(year=year)
+            value = sequence.next_value
+            sequence.next_value = value + 1
+            sequence.save(update_fields=("next_value", "updated_at"))
+        return f"CW-{year}-{value:06d}"
+
+
+class Customer(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=140, verbose_name="Nombre")
+    phone = models.CharField(max_length=30, blank=True, validators=[validate_phone_number], verbose_name="Teléfono")
+    whatsapp = models.CharField(max_length=30, blank=True, validators=[validate_phone_number], verbose_name="WhatsApp")
+    email = models.EmailField(blank=True, verbose_name="Correo electrónico")
+    municipality = models.CharField(max_length=120, blank=True, verbose_name="Municipio")
+    sector = models.CharField(max_length=120, blank=True)
+    address = models.CharField(max_length=240, blank=True, verbose_name="Dirección")
+    normalized_phone = models.CharField(max_length=80, blank=True, db_index=True, editable=False)
+    normalized_whatsapp = models.CharField(max_length=80, blank=True, db_index=True, editable=False)
+    normalized_email = models.CharField(max_length=254, blank=True, db_index=True, editable=False)
+    duplicate_review_required = models.BooleanField(default=False, db_index=True, verbose_name="Revisar posible duplicado")
+    is_deleted = models.BooleanField(default=False, db_index=True, verbose_name="En papelera")
+    deleted_at = models.DateTimeField(blank=True, null=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("name", "created_at")
+        indexes = [models.Index(fields=("is_deleted", "created_at"), name="website_customer_active")]
+        verbose_name = "cliente"
+        verbose_name_plural = "clientes"
+
+    def __str__(self) -> str:
+        return self.name
+
+    def save(self, *args, **kwargs) -> None:
+        self.normalized_phone = normalize_contact_value(self.phone)
+        self.normalized_whatsapp = normalize_contact_value(self.whatsapp)
+        self.normalized_email = normalize_contact_value(self.email)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def resolve(cls, **data) -> "Customer":
+        candidates = models.Q()
+        has_identifier = False
+        for field in ("phone", "whatsapp", "email"):
+            value = normalize_contact_value(data.get(field, ""))
+            if value:
+                has_identifier = True
+                candidates |= models.Q(**{f"normalized_{field}": value})
+        matches = list(cls.objects.filter(candidates, is_deleted=False)[:2]) if has_identifier else []
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            cls.objects.filter(pk__in=[item.pk for item in matches]).update(duplicate_review_required=True)
+        allowed = {"name", "phone", "whatsapp", "email", "municipality", "sector", "address"}
+        return cls.objects.create(**{key: value for key, value in data.items() if key in allowed})
+
+
+class CustomerEquipment(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="equipment")
+    equipment_type = models.CharField(max_length=160, verbose_name="Equipo")
+    brand = models.CharField(max_length=120, blank=True, verbose_name="Marca")
+    model = models.CharField(max_length=120, blank=True, verbose_name="Modelo")
+    serial_number = models.CharField(max_length=120, blank=True, verbose_name="Serie")
+    notes = models.TextField(blank=True, verbose_name="Notas")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("equipment_type", "brand", "model")
+        verbose_name = "equipo del cliente"
+        verbose_name_plural = "equipos del cliente"
+
+    def __str__(self) -> str:
+        return f"{self.equipment_type} {self.brand} {self.model}".strip()
+
+
+class ServiceRequestNote(models.Model):
+    class Visibility(models.TextChoices):
+        INTERNAL = "internal", "Interna"
+        TECHNICAL = "technical", "Técnica"
+
+    service_request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE, related_name="notes")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="service_request_notes")
+    visibility = models.CharField(max_length=16, choices=Visibility.choices, default=Visibility.INTERNAL)
+    body = models.TextField(max_length=5000, verbose_name="Nota")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "nota de solicitud"
+        verbose_name_plural = "notas de solicitud"
+
+
+class ServiceRequestEvent(models.Model):
+    class EventType(models.TextChoices):
+        CREATED = "created", "Creación"
+        STATUS_CHANGED = "status_changed", "Cambio de estado"
+        ASSIGNED = "assigned", "Asignación"
+        NOTE_ADDED = "note_added", "Nota agregada"
+        EXPORTED = "exported", "Exportación"
+        RESTORED = "restored", "Restauración"
+
+    service_request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE, related_name="timeline")
+    event_type = models.CharField(max_length=32, choices=EventType.choices, db_index=True)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="service_request_events")
+    description = models.CharField(max_length=500)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        default_permissions = ("view",)
+        verbose_name = "evento de solicitud"
+        verbose_name_plural = "timeline de solicitudes"
+
+
+class UserProfile(models.Model):
+    class Role(models.TextChoices):
+        OWNER = "owner", "Owner"
+        ADMIN = "admin", "Administrador"
+        TECHNICIAN = "technician", "Técnico"
+        CONTENT_MANAGER = "content_manager", "Gestor de contenido"
+        VIEWER = "viewer", "Solo lectura"
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cw_profile")
+    role = models.CharField(max_length=24, choices=Role.choices, default=Role.VIEWER, db_index=True)
+    phone = models.CharField(max_length=30, blank=True, validators=[validate_phone_number])
+    timezone = models.CharField(max_length=64, default="America/Bogota")
+    must_change_password = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "perfil de usuario"
+        verbose_name_plural = "perfiles de usuarios"
+
+
+class SavedFilter(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="saved_filters")
+    name = models.CharField(max_length=100)
+    target = models.CharField(max_length=100, default="service_requests")
+    filters = models.JSONField(default=dict)
+    is_shared = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=("owner", "target", "name"), name="website_unique_saved_filter")]
+        ordering = ("name",)
+        verbose_name = "filtro guardado"
+        verbose_name_plural = "filtros guardados"
+
+
+class AuditEvent(models.Model):
+    class Action(models.TextChoices):
+        CREATE = "create", "Creación"
+        UPDATE = "update", "Actualización"
+        DELETE = "delete", "Envío a papelera"
+        RESTORE = "restore", "Restauración"
+        EXPORT = "export", "Exportación"
+        LOGIN = "login", "Inicio de sesión"
+        LOGIN_FAILED = "login_failed", "Inicio de sesión fallido"
+        LOGOUT = "logout", "Cierre de sesión"
+        BACKUP = "backup", "Respaldo"
+
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="audit_events")
+    action = models.CharField(max_length=24, choices=Action.choices, db_index=True)
+    object_type = models.CharField(max_length=120, db_index=True)
+    object_id = models.CharField(max_length=120, blank=True)
+    object_repr = models.CharField(max_length=255, blank=True)
+    changes = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    request_id = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        default_permissions = ("view",)
+        verbose_name = "evento de auditoría"
+        verbose_name_plural = "auditoría"
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk:
+            raise ValidationError("Los eventos de auditoría son inmutables.")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Los eventos de auditoría no se pueden eliminar.")
+
+
+class LoginEvent(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="login_events",
+    )
+    username = models.CharField(max_length=150, blank=True)
+    success = models.BooleanField(db_index=True)
+    event = models.CharField(max_length=16, default="login")
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        default_permissions = ("view",)
+        verbose_name = "evento de acceso"
+        verbose_name_plural = "historial de accesos"
+
+
+class ExportRecord(models.Model):
+    class Format(models.TextChoices):
+        CSV = "csv", "CSV"
+        XLSX = "xlsx", "Excel"
+        PDF = "pdf", "PDF"
+        JSON = "json", "JSON"
+
+    class Status(models.TextChoices):
+        PROCESSING = "processing", "Procesando"
+        READY = "ready", "Disponible"
+        FAILED = "failed", "Fallida"
+        EXPIRED = "expired", "Expirada"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="exports")
+    export_type = models.CharField(max_length=60, default="service_requests")
+    file_format = models.CharField(max_length=8, choices=Format.choices)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PROCESSING, db_index=True)
+    parameters = models.JSONField(default=dict, blank=True)
+    relative_path = models.CharField(max_length=500, blank=True, editable=False)
+    original_filename = models.CharField(max_length=255, blank=True, editable=False)
+    row_count = models.PositiveIntegerField(default=0, editable=False)
+    size_bytes = models.PositiveBigIntegerField(default=0, editable=False)
+    sha256 = models.CharField(max_length=64, blank=True, editable=False)
+    error_message = models.CharField(max_length=500, blank=True, editable=False)
+    expires_at = models.DateTimeField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        permissions = (("download_exportrecord", "Puede descargar exportaciones"),)
+        verbose_name = "exportación"
+        verbose_name_plural = "historial de exportaciones"
+
+
+class BackupRecord(models.Model):
+    class Scope(models.TextChoices):
+        DATABASE = "database", "Base de datos"
+        MEDIA = "media", "Archivos multimedia"
+        FULL = "full", "Completo"
+
+    class Status(models.TextChoices):
+        PROCESSING = "processing", "Procesando"
+        READY = "ready", "Disponible"
+        FAILED = "failed", "Fallido"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="backups")
+    scope = models.CharField(max_length=16, choices=Scope.choices)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PROCESSING)
+    relative_path = models.CharField(max_length=500, blank=True, editable=False)
+    size_bytes = models.PositiveBigIntegerField(default=0, editable=False)
+    sha256 = models.CharField(max_length=64, blank=True, editable=False)
+    error_message = models.CharField(max_length=500, blank=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        permissions = (
+            ("create_backuprecord", "Puede crear respaldos"),
+            ("restore_backuprecord", "Puede restaurar respaldos"),
+        )
+        verbose_name = "respaldo"
+        verbose_name_plural = "respaldos"
+
+
+class Holiday(models.Model):
+    date = models.DateField(unique=True)
+    name = models.CharField(max_length=140)
+    is_closed = models.BooleanField(default=True)
+    notes = models.CharField(max_length=300, blank=True)
+
+    class Meta:
+        ordering = ("date",)
+        verbose_name = "festivo o excepción"
+        verbose_name_plural = "festivos y excepciones"
+
+
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    instructions = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order", "name")
+        verbose_name = "método de pago"
+        verbose_name_plural = "métodos de pago"
+
+
+class RedirectRule(models.Model):
+    source_path = models.CharField(max_length=255, unique=True)
+    destination_url = models.CharField(max_length=500)
+    is_permanent = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "redirección"
+        verbose_name_plural = "redirecciones"
+
+    def clean(self) -> None:
+        if not self.source_path.startswith("/"):
+            raise ValidationError({"source_path": "La ruta debe comenzar con /."})
+
+
+class PrivacyRequest(models.Model):
+    class RequestType(models.TextChoices):
+        ACCESS = "access", "Acceso"
+        CORRECTION = "correction", "Corrección"
+        DELETION = "deletion", "Eliminación"
+
+    class Status(models.TextChoices):
+        RECEIVED = "received", "Recibida"
+        VERIFYING = "verifying", "Verificando identidad"
+        PROCESSING = "processing", "En proceso"
+        COMPLETED = "completed", "Completada"
+        REJECTED = "rejected", "Rechazada"
+
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name="privacy_requests")
+    request_type = models.CharField(max_length=16, choices=RequestType.choices)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.RECEIVED, db_index=True)
+    requester_name = models.CharField(max_length=140)
+    requester_contact = models.CharField(max_length=254)
+    verified_at = models.DateTimeField(blank=True, null=True)
+    due_at = models.DateTimeField(blank=True, null=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "solicitud de privacidad"
+        verbose_name_plural = "solicitudes de privacidad"
 
 
 class SecurityRateLimitBucket(models.Model):

@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'website/css/cw-admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name" class="cw-admin-brand">
+    <a href="{% url 'admin:index' %}">
+      <img src="{% static 'website/images/cw-mark.svg' %}" alt="" width="38" height="38">
+      <span><strong>CW Reparaciones</strong><small>Centro de Control</small></span>
+    </a>
+  </div>
+  {% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}
+{% endblock %}
+
+{% block nav-global %}
+  {% if user.is_authenticated %}
+    <a class="cw-public-link" href="{% url 'website:home' %}" target="_blank" rel="noopener">Ver sitio público</a>
+  {% endif %}
+{% endblock %}

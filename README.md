@@ -1,8 +1,9 @@
 # CW Reparaciones
 
 Plataforma Django de CW Reparaciones con catálogo de ocho equipos, cobertura
-consultable, WhatsApp, solicitudes guiadas, administración y videos de trabajos
-autorizados. La V1 local no equivale a un despliegue público: los datos legales,
+consultable, WhatsApp, solicitudes guiadas, CRM, administración por roles,
+exportaciones privadas, respaldos y videos autorizados. La validación local no
+equivale a un despliegue público: los datos legales,
 dominio y hosting pendientes figuran en [BUSINESS_DATA_PENDING.md](BUSINESS_DATA_PENDING.md).
 
 ## Puesta en marcha local
@@ -45,7 +46,8 @@ marcas de referencia están guardadas sin declarar soporte ni autorización ofic
 El formulario se describe como recopilación preliminar, no como diagnóstico ni
 cita confirmada. Incluye equipo, marca/modelo opcionales, problema, municipio,
 sector, contacto, fecha preferida opcional, consentimiento, honeypot, limitación
-básica por IP y captura UTM. Genera un número `CW-AAAA-UUID`, estable y único,
+básica por IP y captura UTM. Genera un número consecutivo anual
+`CW-AAAA-000001`, estable y único,
 visible al finalizar. Los adjuntos JPEG, PNG, WebP y MP4 se validan por
 extensión, firma binaria y tamaño. Se guardan bajo `private_uploads/`, sin ruta
 pública; la descarga requiere personal con permiso específico.
@@ -107,7 +109,8 @@ originales privados. Configure en la pestaña Web de PythonAnywhere los mapeos
 `/static/` → el `STATIC_ROOT` absoluto y `/media/` → el `MEDIA_ROOT` absoluto.
 Nunca sirva `private_uploads/` como ruta estática.
 
-Este proyecto usa Django 6.1 y Pillow 12.3, y requiere Python 3.12 o superior; compruebe la
+Este proyecto usa Django 6.1, Pillow, openpyxl, ReportLab y svglib, y requiere
+Python 3.12 o superior; compruebe la
 imagen del sistema de la cuenta y elija la misma versión de Python para la web
 y su virtualenv. Configure el WSGI de la pestaña Web para importar
 `cvww_proyect.settings` desde el directorio que contiene `manage.py`. Inyecte
@@ -175,6 +178,22 @@ validación decodificada de imágenes y estructura MP4. El proxy web sigue siend
 la capa correcta para fijar un límite total del cuerpo antes de que llegue a
 Django. Para adjuntos de clientes se recomienda además análisis antimalware y
 una política operativa de retención/borrado.
+
+## Centro de Control
+
+El administrador incluye dashboard con datos reales, perfiles Owner,
+Administrador, Técnico, Contenido y Solo lectura, CRM de clientes, asignaciones,
+timeline, notas, papelera, historial de accesos y auditoría inmutable. CSV,
+Excel, JSON y PDF se generan fuera del directorio público, tienen hash,
+caducidad y descarga autorizada.
+
+Guías operativas:
+
+- [Centro de Control y flujo diario](docs/ADMIN_GUIDE.md)
+- [Exportaciones](docs/EXPORT_GUIDE.md)
+- [Respaldos y restauración](docs/BACKUP_GUIDE.md)
+- [Despliegue PythonAnywhere](docs/DEPLOY_PYTHONANYWHERE.md)
+- [Auditoría previa](docs/BEFORE_IMPLEMENTATION_REPORT.md)
 
 ## Variables de entorno
 

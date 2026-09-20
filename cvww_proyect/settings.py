@@ -138,7 +138,7 @@ ASGI_APPLICATION = "cvww_proyect.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": Path(os.getenv("DJANGO_DATABASE_PATH", BASE_DIR / "db.sqlite3")),
     }
 }
 
@@ -166,6 +166,15 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+PRIVATE_EXPORT_ROOT = BASE_DIR / "private_exports"
+PRIVATE_BACKUP_ROOT = BASE_DIR / "private_backups"
+PRIVATE_IMPORT_ROOT = BASE_DIR / "private_imports"
+WEBSITE_EXPORT_RETENTION_HOURS = env_int(
+    "DJANGO_EXPORT_RETENTION_HOURS", 24, minimum=1, maximum=168
+)
+WEBSITE_BACKUP_RETENTION_DAYS = env_int(
+    "DJANGO_BACKUP_RETENTION_DAYS", 30, minimum=1, maximum=365
+)
 FILE_UPLOAD_PERMISSIONS = 0o640
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o750
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1_048_576

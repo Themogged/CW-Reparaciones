@@ -8,3 +8,4 @@ class WebsiteConfig(AppConfig):
 
     def ready(self) -> None:
         from . import checks  # noqa: F401
+        from . import signals  # noqa: F401

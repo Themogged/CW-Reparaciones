@@ -3,6 +3,8 @@ from __future__ import annotations
 import mimetypes
 import logging
 import json
+import hashlib
+import secrets
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -14,6 +16,7 @@ from django.db.models import Prefetch, Q
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.debug import sensitive_post_parameters
 
@@ -28,7 +31,10 @@ from .models import (
     ServiceCategory,
     ServiceRequest,
     SiteSettings,
+    ExportRecord,
+    UserProfile,
 )
+from .business.exports import build_service_order_pdf, resolve_export_path
 from .rate_limits import consume_service_request_limit
 
 
@@ -541,6 +547,13 @@ def request_attachment_download(
         raise PermissionDenied
 
     service_request = get_object_or_404(ServiceRequest, pk=request_id)
+    profile = getattr(request.user, "cw_profile", None)
+    if (
+        profile
+        and profile.role == UserProfile.Role.TECHNICIAN
+        and service_request.assigned_technician_id != request.user.pk
+    ):
+        raise PermissionDenied
     if not service_request.diagnostic_media:
         raise Http404("La solicitud no tiene un archivo adjunto.")
 
@@ -561,6 +574,69 @@ def request_attachment_download(
     response["X-Content-Type-Options"] = "nosniff"
     response["Cross-Origin-Resource-Policy"] = "same-origin"
     response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+    return response
+
+
+@staff_member_required
+@require_GET
+def export_download(request: HttpRequest, token) -> FileResponse:
+    if not request.user.has_perm("website.download_exportrecord"):
+        raise PermissionDenied
+    export = get_object_or_404(ExportRecord, token=token)
+    if not (
+        request.user.is_superuser
+        or export.created_by_id == request.user.pk
+        or getattr(getattr(request.user, "cw_profile", None), "role", "") in {
+            UserProfile.Role.OWNER,
+            UserProfile.Role.ADMIN,
+        }
+    ):
+        raise PermissionDenied
+    if export.status != ExportRecord.Status.READY or export.expires_at <= timezone.now():
+        if export.status == ExportRecord.Status.READY:
+            export.status = ExportRecord.Status.EXPIRED
+            export.save(update_fields=("status",))
+        raise Http404("La exportación ya no está disponible.")
+    try:
+        path = resolve_export_path(export)
+        file_handle = path.open("rb")
+    except (ValueError, FileNotFoundError, OSError) as exc:
+        raise Http404("La exportación no está disponible.") from exc
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: file_handle.read(1024 * 1024), b""):
+        digest.update(chunk)
+    if not secrets.compare_digest(digest.hexdigest(), export.sha256):
+        file_handle.close()
+        raise Http404("La integridad del archivo no pudo verificarse.")
+    file_handle.seek(0)
+    response = FileResponse(file_handle, as_attachment=True, filename=export.original_filename)
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+    return response
+
+
+@staff_member_required
+@require_GET
+def service_order_pdf(request: HttpRequest, request_id) -> HttpResponse:
+    if not request.user.has_perm("website.view_servicerequest"):
+        raise PermissionDenied
+    service_request = get_object_or_404(ServiceRequest, pk=request_id, is_deleted=False)
+    profile = getattr(request.user, "cw_profile", None)
+    is_technician = profile and profile.role == UserProfile.Role.TECHNICIAN
+    if is_technician and service_request.assigned_technician_id != request.user.pk:
+        raise PermissionDenied
+    internal = request.GET.get("mode") == "internal"
+    if internal and not request.user.has_perm("website.change_servicerequest"):
+        raise PermissionDenied
+    content = build_service_order_pdf(service_request, internal=internal)
+    response = HttpResponse(content, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'inline; filename="cw-reparaciones-orden-{service_request.ticket_number}.pdf"'
+    )
+    response["Cache-Control"] = "private, no-store, max-age=0"
+    response["X-Content-Type-Options"] = "nosniff"
     return response
 
 

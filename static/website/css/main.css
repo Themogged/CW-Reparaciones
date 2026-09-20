@@ -1,4 +1,50 @@
-@layer reset, tokens, base, layout, components, pages, utilities, overrides;
+@layer reset, tokens, base, layout, components, pages, utilities, overrides, mobile-refinement;
+
+@layer mobile-refinement {
+  .cw-mobile-start { display: none; }
+  .menu-toggle span { font-size: .75rem; font-weight: 700; }
+  .menu-toggle { width: auto; padding-inline: .75rem; gap: .4rem; }
+  @media (max-width: 699px) {
+    .site-header .menu-toggle { width: auto; min-height: 44px; height: 44px; padding-inline: .65rem; }
+    .site-header .brand-wordmark strong { font-size: .88rem; }
+    .cw-hero { border-radius: 0 0 24px 24px; background: linear-gradient(125deg, #071f3b, #093d68); box-shadow: none; }
+    .cw-hero-layout { padding-block: 2rem 1.75rem; }
+    .cw-hero h1 { max-width: 17ch; font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.1; letter-spacing: -.035em; }
+    .cw-hero h1 span { color: #ffc36b; background: none; }
+    .cw-overline { font-size: .62rem; letter-spacing: .08em; }
+    .cw-hero-lead { font-size: .95rem; line-height: 1.65; }
+    .cw-mobile-start { display: grid; gap: .65rem; margin-top: 1.4rem; }
+    .cw-mobile-start .button { width: 100%; min-height: 52px; border-radius: 12px; background: #ffb238; color: #092442; box-shadow: none; }
+    .cw-mobile-start p { max-width: 34ch; font-size: .75rem; line-height: 1.6; color: #d4dfeb; }
+    .cw-hero-trust { margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid #ffffff24; }
+    .cw-page-home .section { padding-block: 2.4rem; }
+    .cw-page-home .section-heading h2 { font-size: 1.8rem; line-height: 1.2; }
+    .cw-service-grid { grid-template-columns: 1fr; gap: .75rem; }
+    .cw-service-card { display: grid; grid-template-columns: 54px minmax(0, 1fr); column-gap: 1rem; align-items: center; min-height: 0; padding: 1rem; border: 1px solid #dce5ed; border-radius: 16px; box-shadow: 0 3px 12px #102e4a04; }
+    .cw-service-card::before { display: none; }
+    .cw-service-card:hover { transform: none; border-color: #648eaf; }
+    .cw-service-card .service-card-icon { grid-column: 1; grid-row: 1 / 4; width: 54px; height: 60px; margin: 0; border: 1px solid #d8e4ef; border-radius: 12px; background: #f0f5fa; color: #154b72; }
+    .cw-service-card .service-card-icon .icon { width: 34px; height: 34px; stroke-width: 1.5; }
+    .cw-service-card .cw-service-card-image { grid-column: 1; grid-row: 1 / 4; margin: 0; border-radius: 10px; }
+    .cw-service-card .cw-service-card-image img { width: 54px; height: 60px; object-fit: cover; }
+    .cw-service-card .service-card-category { display: none; }
+    .cw-service-card h3 { grid-column: 2; font-size: 1rem; line-height: 1.4; margin: 0; }
+    .cw-service-card p:not(.eyebrow) { grid-column: 2; margin: .3rem 0 0; font-size: .8rem; line-height: 1.5; -webkit-line-clamp: 2; }
+    .cw-service-card .cw-card-actions { grid-column: 2; margin-top: .3rem; padding: 0; border: 0; }
+    .cw-service-card .cw-card-request { display: none; }
+    .cw-service-card .text-link { min-height: 44px; font-size: .8rem; }
+    .mobile-menu-panel nav a { min-height: 48px; font-size: 1rem; }
+    .mobile-sticky-actions { border-radius: 16px; box-shadow: 0 5px 24px #102b4820; }
+    .sticky-whatsapp { background: #087743; box-shadow: none; }
+    .sticky-action-copy small { display: block; margin-top: 2px; font-size: .65rem; font-weight: 400; }
+    .sticky-action { min-height: 54px; }
+    .request-form-shell { border-radius: 18px; box-shadow: none; }
+    .form-step-heading h3 { line-height: 1.25; }
+    .form-field input:not([type=checkbox]):not([type=radio]), .form-field select, .form-field textarea { font-size: 16px; }
+    .form-step-actions .button { min-height: 48px; }
+    #servicios { scroll-margin-top: 90px; }
+  }
+}
 
 @layer reset {
   *, *::before, *::after { box-sizing: border-box; }

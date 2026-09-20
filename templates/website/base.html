@@ -22,8 +22,8 @@
     <meta name="color-scheme" content="light">
     {% block robots_meta %}{% endblock %}
     <link rel="icon" href="{% static 'website/images/favicon.svg' %}" type="image/svg+xml">
-    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20260916-v9" as="style">
-    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20260916-v9">
+    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20260920-v10" as="style">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20260920-v10">
     <script defer src="{% static 'website/js/main.js' %}?v=20260916-v9"></script>
     {% block extra_head %}{% endblock %}
 </head>
@@ -58,6 +58,7 @@
                 {% endif %}
                 <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
                     <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-menu"></use></svg>
+                    <span>Menú</span>
                 </button>
             </div>
         </div>
@@ -73,9 +74,8 @@
             </div>
             <nav aria-label="Navegación móvil">
                 <a href="{% url 'website:home' %}">Inicio</a>
-                {% if site_settings.feature_services %}<a href="{% url 'website:service_list' %}">Servicios</a>{% endif %}
-                {% if site_settings.feature_services %}<a href="{% url 'website:service_category' 'hogar' %}">Hogar</a><a href="{% url 'website:service_category' 'industriales' %}">Industria</a>{% endif %}
-                <a href="{% url 'website:coverage' %}">Cobertura</a>
+                {% if site_settings.feature_services %}<a href="{% url 'website:service_list' %}">Qué equipos reparamos</a>{% endif %}
+                <a href="{% url 'website:coverage' %}">Zonas de atención</a>
                 {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}">Trabajos reales</a>{% endif %}
                 <a href="{% url 'website:about' %}">Nosotros</a>
                 <a href="{% url 'website:contact' %}">Contacto</a>

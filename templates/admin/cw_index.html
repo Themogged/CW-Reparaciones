@@ -1,0 +1,73 @@
+{% extends "admin/index.html" %}
+{% load i18n cw_admin %}
+
+{% block content %}
+{% cw_dashboard as dashboard %}
+<section class="cw-dashboard" aria-labelledby="cw-dashboard-title">
+  <div class="cw-dashboard__heading">
+    <div>
+      <p class="cw-eyebrow">OPERACIÓN EN TIEMPO REAL</p>
+      <h1 id="cw-dashboard-title">Resumen del negocio</h1>
+      <p>Información real de solicitudes, clientes y operación. No se muestran métricas económicas sin datos registrados.</p>
+    </div>
+    {% if perms.website.view_servicerequest %}
+      <a class="cw-primary-action" href="{% url 'admin:website_servicerequest_changelist' %}">Gestionar solicitudes</a>
+    {% endif %}
+  </div>
+
+  <div class="cw-kpi-grid">
+    <article class="cw-kpi"><span>Solicitudes</span><strong>{{ dashboard.total }}</strong><small>Total autorizado</small></article>
+    <article class="cw-kpi cw-kpi--orange"><span>Nuevas</span><strong>{{ dashboard.new }}</strong><small>Requieren revisión</small></article>
+    <article class="cw-kpi"><span>Activas</span><strong>{{ dashboard.active }}</strong><small>No finalizadas</small></article>
+    <article class="cw-kpi cw-kpi--success"><span>Finalizadas</span><strong>{{ dashboard.completed_month }}</strong><small>Este mes</small></article>
+  </div>
+
+  <div class="cw-dashboard-grid">
+    <article class="cw-panel cw-panel--wide">
+      <div class="cw-panel__title"><div><p class="cw-eyebrow">CRM</p><h2>Solicitudes recientes</h2></div><a href="{% url 'admin:website_servicerequest_changelist' %}">Ver todas</a></div>
+      {% if dashboard.recent %}
+        <div class="cw-table-wrap">
+          <table class="cw-table">
+            <thead><tr><th>Ticket</th><th>Cliente</th><th>Equipo</th><th>Estado</th><th>Técnico</th></tr></thead>
+            <tbody>
+              {% for item in dashboard.recent %}
+                <tr>
+                  <td><a href="{% url 'admin:website_servicerequest_change' item.pk %}">{{ item.ticket_number }}</a></td>
+                  <td>{{ item.name }}</td><td>{{ item.equipment }}</td><td><span class="cw-status">{{ item.get_status_display }}</span></td>
+                  <td>{{ item.assigned_technician|default:"Sin asignar" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="cw-empty"><strong>Aún no hay solicitudes.</strong><span>Cuando llegue la primera, aparecerá aquí automáticamente.</span></div>
+      {% endif %}
+    </article>
+
+    <aside class="cw-panel">
+      <div class="cw-panel__title"><div><p class="cw-eyebrow">ATENCIÓN</p><h2>Prioridades</h2></div></div>
+      <dl class="cw-mini-stats">
+        <div><dt>Sin técnico</dt><dd>{{ dashboard.unassigned }}</dd></div>
+        <div><dt>Programadas</dt><dd>{{ dashboard.scheduled }}</dd></div>
+        <div><dt>Clientes</dt><dd>{{ dashboard.customers }}</dd></div>
+        <div><dt>Exports listos</dt><dd>{{ dashboard.exports_ready }}</dd></div>
+      </dl>
+      {% if dashboard.notifications %}
+        <ul class="cw-notifications">{% for notice in dashboard.notifications %}<li>{{ notice }}</li>{% endfor %}</ul>
+      {% else %}<p class="cw-all-clear">Sin alertas operativas pendientes.</p>{% endif %}
+    </aside>
+  </div>
+
+  <div class="cw-health" data-ok="{{ dashboard.database_ok|yesno:'true,false' }}">
+    <span class="cw-health__dot"></span>
+    <strong>Base de datos: {{ dashboard.database_status }}</strong>
+    <span>Último respaldo: {% if dashboard.latest_backup %}{{ dashboard.latest_backup.created_at|date:"d/m/Y H:i" }}{% else %}aún no registrado{% endif %}</span>
+  </div>
+</section>
+
+<div class="cw-admin-modules">
+  <h2>Módulos de administración</h2>
+  {{ block.super }}
+</div>
+{% endblock %}

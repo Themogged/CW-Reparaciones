@@ -2,7 +2,7 @@
 <article class="service-card cw-service-card">
     {% if service.image %}<a class="cw-service-card-image" href="{% url 'website:service_detail' service.slug %}"><img src="{{ service.image.url }}" alt="Equipo relacionado con {{ service.name }}" loading="lazy" decoding="async"></a>{% else %}
     <div class="service-card-icon" aria-hidden="true">
-        <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{{ service.icon_key|default:'tool' }}"></use></svg>
+        <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{% if service.icon_key %}{{ service.icon_key }}{% elif service.slug == 'lavadoras' or service.slug == 'lavadoras-industriales' %}washer{% elif service.slug == 'neveras' %}fridge{% elif service.slug == 'estufas-induccion' %}cooktop{% elif service.slug == 'lavavajillas' %}dishwasher{% elif service.slug == 'aires-acondicionados' %}aircon{% elif service.slug == 'abanicos' %}fan{% elif service.slug == 'hornos-industriales' %}oven{% else %}tool{% endif %}"></use></svg>
     </div>
     {% endif %}
     {% if service.category %}<p class="eyebrow service-card-category">{{ service.category }}</p>{% endif %}

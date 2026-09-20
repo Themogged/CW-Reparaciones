@@ -28,4 +28,14 @@ urlpatterns = [
         views.request_attachment_download,
         name="request_attachment_download",
     ),
+    path(
+        "gestion/exportaciones/<uuid:token>/descargar/",
+        views.export_download,
+        name="export_download",
+    ),
+    path(
+        "gestion/solicitudes/<uuid:request_id>/orden.pdf",
+        views.service_order_pdf,
+        name="service_order_pdf",
+    ),
 ]
