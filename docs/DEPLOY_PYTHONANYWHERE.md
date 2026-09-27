@@ -11,7 +11,7 @@ cd /home/CWreparaciones/CW-Reparaciones
 cp db.sqlite3 "$HOME/db-before-business-control-$(date +%Y%m%d-%H%M%S).sqlite3"
 git status --short
 git pull --ff-only origin main
-source /home/CWreparaciones/.virtualenvs/cw-reparaciones/bin/activate
+source /home/CWreparaciones/.virtualenvs/cw-reparaciones-venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
@@ -36,7 +36,7 @@ python manage.py collectstatic --noinput
 
 - Código fuente: directorio que contiene `manage.py`.
 - Working directory: el mismo repositorio.
-- Virtualenv: `/home/CWreparaciones/.virtualenvs/cw-reparaciones`.
+- Virtualenv: `/home/CWreparaciones/.virtualenvs/cw-reparaciones-venv`.
 - `/static/` apunta al `STATIC_ROOT` absoluto.
 - `/media/` apunta a `MEDIA_ROOT` sólo para contenido público autorizado.
 - No cree mapeos para `private_uploads`, `private_exports` ni `private_backups`.

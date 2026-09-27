@@ -524,6 +524,8 @@ class ServiceRequestAdmin(AuditAdminMixin, admin.ModelAdmin):
     def attachment_link(self, obj: ServiceRequest):
         if not obj or not obj.diagnostic_media:
             return "Sin archivo adjunto"
+        if obj.is_deleted:
+            return "Restaura la solicitud para acceder al archivo."
         try:
             url = reverse("website:request_attachment_download", args=(obj.pk,))
         except NoReverseMatch:
@@ -554,6 +556,8 @@ class ServiceRequestAdmin(AuditAdminMixin, admin.ModelAdmin):
     def service_order_links(self, obj: ServiceRequest):
         if not obj or not obj.pk:
             return "Disponible al guardar"
+        if obj.is_deleted:
+            return "Restaura la solicitud para generar documentos."
         url = reverse("website:service_order_pdf", args=(obj.pk,))
         return format_html(
             '<a href="{}" target="_blank" rel="noopener">Orden cliente</a> · '

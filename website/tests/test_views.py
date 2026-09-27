@@ -266,3 +266,23 @@ class PrivateAttachmentViewTests(TestCase):
         self.assertEqual(response["Cross-Origin-Resource-Policy"], "same-origin")
         self.assertEqual(response["Content-Security-Policy"], "sandbox; default-src 'none'")
         self.assertIn("attachment", response["Content-Disposition"])
+
+    def test_trashed_request_attachment_is_not_downloadable(self):
+        user = get_user_model().objects.create_user(
+            username="authorized-trash-staff", password="not-used", is_staff=True
+        )
+        user.user_permissions.add(
+            Permission.objects.get(
+                content_type__app_label="website", codename="view_servicerequest"
+            )
+        )
+        self.service_request.move_to_trash()
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse(
+                "website:request_attachment_download", args=(self.service_request.pk,)
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)

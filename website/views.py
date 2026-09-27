@@ -546,7 +546,13 @@ def request_attachment_download(
     ):
         raise PermissionDenied
 
-    service_request = get_object_or_404(ServiceRequest, pk=request_id)
+    # Una solicitud en la papelera deja de ser operativa. Exigir que esté
+    # activa evita que un enlace antiguo conserve acceso al adjunto privado.
+    service_request = get_object_or_404(
+        ServiceRequest,
+        pk=request_id,
+        is_deleted=False,
+    )
     profile = getattr(request.user, "cw_profile", None)
     if (
         profile

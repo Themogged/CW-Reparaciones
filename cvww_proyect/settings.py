@@ -220,17 +220,24 @@ if DEBUG:
         }
     }
 else:
+    email_use_tls = env_bool("DJANGO_EMAIL_USE_TLS", True)
+    email_use_ssl = env_bool("DJANGO_EMAIL_USE_SSL", False)
+    if email_use_tls and email_use_ssl:
+        raise ImproperlyConfigured(
+            "DJANGO_EMAIL_USE_TLS y DJANGO_EMAIL_USE_SSL no pueden estar "
+            "habilitados al mismo tiempo."
+        )
     MAILERS = {
         "default": {
             "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
             "OPTIONS": {
                 "host": os.getenv("DJANGO_EMAIL_HOST", "localhost"),
-                "port": int(os.getenv("DJANGO_EMAIL_PORT", "587")),
+                "port": env_int("DJANGO_EMAIL_PORT", 587, minimum=1, maximum=65_535),
                 "username": os.getenv("DJANGO_EMAIL_HOST_USER") or None,
                 "password": os.getenv("DJANGO_EMAIL_HOST_PASSWORD") or None,
-                "use_tls": env_bool("DJANGO_EMAIL_USE_TLS", True),
-                "use_ssl": env_bool("DJANGO_EMAIL_USE_SSL", False),
-                "timeout": int(os.getenv("DJANGO_EMAIL_TIMEOUT", "10")),
+                "use_tls": email_use_tls,
+                "use_ssl": email_use_ssl,
+                "timeout": env_int("DJANGO_EMAIL_TIMEOUT", 10, minimum=1, maximum=300),
             },
         }
     }

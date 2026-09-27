@@ -135,18 +135,19 @@ completo y confirme autorización, contexto técnico y privacidad antes de
 publicarlo desde el admin. La gestión pública de videos requiere póster,
 preview, versión completa optimizada y estado `Autorizado`.
 
-Para múltiples procesos o servidores, sustituya la caché local por una caché
-compartida para que el rate limit sea global. Verifique el IP entregado por el
-proxy, defina retención y análisis antimalware, y asegure persistencia/backup de
-base de datos, `media/` y `private_uploads/` antes de abrir el formulario al público.
+Los límites de solicitudes y acceso administrativo se almacenan en la base de
+datos, por lo que se comparten entre los procesos WSGI. Verifique la IP entregada
+por el proxy, defina retención y análisis antimalware, y asegure persistencia y
+copias de la base de datos, `media/` y `private_uploads/` antes de abrir el
+formulario al público.
 
 ### Despliegue seguro en PythonAnywhere
 
 Antes de recargar la aplicación, cree y seleccione un entorno virtual real:
 
 ```bash
-python3.13 -m venv /home/CWreparaciones/.virtualenvs/cw-reparaciones
-source /home/CWreparaciones/.virtualenvs/cw-reparaciones/bin/activate
+python3.13 -m venv /home/CWreparaciones/.virtualenvs/cw-reparaciones-venv
+source /home/CWreparaciones/.virtualenvs/cw-reparaciones-venv/bin/activate
 cd /home/CWreparaciones/CW-Reparaciones
 python -m pip install -r requirements.txt
 python manage.py migrate
@@ -155,7 +156,7 @@ python manage.py check --deploy
 ```
 
 En la pestaña **Web**, configure el campo Virtualenv con
-`/home/CWreparaciones/.virtualenvs/cw-reparaciones`. En PythonAnywhere también
+`/home/CWreparaciones/.virtualenvs/cw-reparaciones-venv`. En PythonAnywhere también
 debe definir `DJANGO_TRUST_X_REAL_IP=true`, porque el proxy entrega la IP del
 visitante mediante `X-Real-IP`; el valor permanece desactivado por defecto para
 que esa cabecera no pueda falsificarse en otros proveedores. Active
