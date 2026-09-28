@@ -17,7 +17,7 @@ from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_safe
 from django.views.decorators.debug import sensitive_post_parameters
 
 from .forms import ServiceRequestForm
@@ -131,7 +131,7 @@ def _request_form(request: HttpRequest, **initial) -> ServiceRequestForm:
     return form
 
 
-@require_GET
+@require_safe
 def home(request: HttpRequest) -> HttpResponse:
     settings_object = SiteSettings.load()
     if settings_object.feature_services:
@@ -175,7 +175,7 @@ def home(request: HttpRequest) -> HttpResponse:
     return render(request, "website/home.html", context)
 
 
-@require_GET
+@require_safe
 def service_list(request: HttpRequest) -> HttpResponse:
     settings_object = SiteSettings.load()
     services = _active_services() if settings_object.feature_services else Service.objects.none()
@@ -197,7 +197,7 @@ def service_list(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def service_detail(request: HttpRequest, slug: str) -> HttpResponse:
     if not SiteSettings.load().feature_services:
         raise Http404("El catálogo de servicios no está habilitado.")
@@ -221,7 +221,7 @@ def service_detail(request: HttpRequest, slug: str) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def service_category(request: HttpRequest, slug: str) -> HttpResponse:
     if not SiteSettings.load().feature_services:
         raise Http404("El catálogo de servicios no está habilitado.")
@@ -242,7 +242,7 @@ def service_category(request: HttpRequest, slug: str) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def coverage(request: HttpRequest) -> HttpResponse:
     return render(
         request,
@@ -256,13 +256,13 @@ def coverage(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def portfolio_list(request: HttpRequest) -> HttpResponse:
     projects = _public_projects() if SiteSettings.load().feature_portfolio else PortfolioProject.objects.none()
     return render(request, "website/portfolio_list.html", {"portfolio_projects": projects})
 
 
-@require_GET
+@require_safe
 def portfolio_detail(request: HttpRequest, slug: str) -> HttpResponse:
     if not SiteSettings.load().feature_portfolio:
         raise Http404("El portafolio no está habilitado.")
@@ -297,12 +297,12 @@ def portfolio_detail(request: HttpRequest, slug: str) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def process(request: HttpRequest) -> HttpResponse:
     return render(request, "website/process.html")
 
 
-@require_GET
+@require_safe
 def about(request: HttpRequest) -> HttpResponse:
     brand_video = _public_brand_video()
     return render(
@@ -324,7 +324,7 @@ def about(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_GET
+@require_safe
 def contact(request: HttpRequest) -> HttpResponse:
     settings_object = SiteSettings.load()
     return render(
@@ -344,9 +344,9 @@ def contact(request: HttpRequest) -> HttpResponse:
 def request_service(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         return submit_request(request)
-    if request.method != "GET":
+    if request.method not in {"GET", "HEAD"}:
         response = HttpResponse(status=405)
-        response["Allow"] = "GET, POST"
+        response["Allow"] = "GET, HEAD, POST"
         return response
     if not SiteSettings.load().feature_diagnostic_form:
         raise Http404("El formulario de solicitudes no está habilitado.")
@@ -441,7 +441,7 @@ def submit_request(request: HttpRequest) -> HttpResponse:
     return redirect("website:request_success")
 
 
-@require_GET
+@require_safe
 def request_success(request: HttpRequest) -> HttpResponse:
     ticket_number = request.session.pop("website_request_submitted", None)
     response = render(
@@ -463,17 +463,17 @@ def request_success(request: HttpRequest) -> HttpResponse:
     return response
 
 
-@require_GET
+@require_safe
 def privacy(request: HttpRequest) -> HttpResponse:
     return render(request, "website/privacy.html")
 
 
-@require_GET
+@require_safe
 def terms(request: HttpRequest) -> HttpResponse:
     return render(request, "website/terms.html")
 
 
-@require_GET
+@require_safe
 def robots(request: HttpRequest) -> HttpResponse:
     sitemap_url = request.build_absolute_uri(reverse("website:sitemap"))
     content = "\n".join(
@@ -487,7 +487,7 @@ def robots(request: HttpRequest) -> HttpResponse:
     return HttpResponse(content, content_type="text/plain; charset=utf-8")
 
 
-@require_GET
+@require_safe
 def sitemap(request: HttpRequest) -> HttpResponse:
     settings_object = SiteSettings.load()
     static_names = (

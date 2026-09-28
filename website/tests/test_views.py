@@ -77,6 +77,31 @@ class PublicViewTests(TestCase):
                 response = self.client.get(reverse(f"website:{route_name}"))
                 self.assertEqual(response.status_code, 200)
 
+    def test_public_pages_support_head_requests(self):
+        route_names = (
+            "home",
+            "service_list",
+            "process",
+            "about",
+            "contact",
+            "privacy",
+            "terms",
+            "request_service",
+            "request_success",
+            "robots",
+            "sitemap",
+        )
+        for route_name in route_names:
+            with self.subTest(route_name=route_name):
+                response = self.client.head(reverse(f"website:{route_name}"))
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content, b"")
+
+    def test_request_form_reports_supported_methods(self):
+        response = self.client.put(reverse("website:request_service"))
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.headers["Allow"], "GET, HEAD, POST")
+
     def test_detail_hides_inactive_service(self):
         response = self.client.get(
             reverse("website:service_detail", args=(self.inactive_service.slug,))
