@@ -21,13 +21,31 @@ class ServiceRequestForm(forms.ModelForm):
 
     STEP_FIELDS = OrderedDict(
         (
-            (1, ("service", "equipment")),
-            (2, ("brand", "model")),
-            (3, ("issue", "frequency", "description")),
-            (4, ("diagnostic_media",)),
-            (5, ("municipality", "sector", "address")),
             (
-                6,
+                1,
+                (
+                    "service",
+                    "equipment",
+                    "issue",
+                    "frequency",
+                    "description",
+                    "brand",
+                    "model",
+                    "diagnostic_media",
+                ),
+            ),
+            (
+                2,
+                (
+                    "municipality",
+                    "sector",
+                    "address",
+                    "preferred_date",
+                    "preferred_time",
+                ),
+            ),
+            (
+                3,
                 (
                     "name",
                     "whatsapp",
@@ -37,7 +55,6 @@ class ServiceRequestForm(forms.ModelForm):
                     "privacy_accepted",
                 ),
             ),
-            (7, ("preferred_date", "preferred_time")),
         )
     )
 

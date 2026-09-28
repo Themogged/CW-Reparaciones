@@ -1,0 +1,15 @@
+{% load static %}
+<article class="cw-equipment-choice">
+  <div class="cw-equipment-icon" aria-hidden="true">
+    <svg class="icon"><use href="{% static 'website/images/icons.svg' %}#icon-{% if service.icon_key %}{{ service.icon_key }}{% elif service.slug == 'lavadoras' or service.slug == 'lavadoras-industriales' %}washer{% elif service.slug == 'neveras' %}fridge{% elif service.slug == 'estufas-induccion' %}cooktop{% elif service.slug == 'lavavajillas' %}dishwasher{% elif service.slug == 'aires-acondicionados' %}aircon{% elif service.slug == 'abanicos' %}fan{% elif service.slug == 'hornos-industriales' %}oven{% else %}tool{% endif %}"></use></svg>
+  </div>
+  <div class="cw-equipment-copy">
+    {% if service.category %}<span>{{ service.category.name }}</span>{% endif %}
+    <h3>{{ service.name }}</h3>
+  </div>
+  <a class="cw-equipment-action" href="{% url 'website:request_service' %}?service={{ service.slug|urlencode }}#solicitar" aria-label="Solicitar revisión para {{ service.name }}">
+    <span>Elegir</span>
+    <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg>
+  </a>
+  <a class="cw-equipment-details" href="{% url 'website:service_detail' service.slug %}" aria-label="Ver información del servicio de {{ service.name }}">Ver información</a>
+</article>

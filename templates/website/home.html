@@ -34,26 +34,28 @@
     <div class="cw-hero-copy">
       <p class="cw-overline">CW Reparaciones <span>·</span> Servicios Técnicos</p>
       <h1 id="hero-title">Servicio técnico para tu <span>hogar y negocio.</span></h1>
-      <p class="cw-hero-lead">Atención a domicilio para equipos domésticos e industriales en sectores del Área Metropolitana.</p>
-      {% if site_settings.feature_services and services %}
-      <div class="cw-mobile-start">
-        <a class="button button-primary" href="#servicios">Elegir mi equipo <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>
-        <p>Elige el equipo. Cuéntanos qué falla. Coordinamos contigo.</p>
+      <p class="cw-hero-lead">Cuéntanos qué equipo falla y dónde estás. Revisamos tu solicitud y coordinamos contigo.</p>
+      <div class="cw-hero-actions-primary">
+        {% if site_settings.feature_services and services %}<a class="button button-primary" href="#servicios">Elegir mi equipo <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
+        {% if contact_channels.whatsapp_url %}<a class="button button-ghost-light" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, necesito solicitar un servicio técnico. Mi equipo es y presenta esta falla:" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg> WhatsApp</a>{% endif %}
       </div>
-      {% endif %}
       <ul class="cw-hero-trust" aria-label="Características del servicio">
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-home"></use></svg><span>Servicio a domicilio</span></li>
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Trabajos documentados</span></li>
       </ul>
     </div>
-    <div class="cw-hero-panel" aria-label="Información del servicio">
-      <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Atención para equipos domésticos e industriales</span></div>
+    <div class="cw-hero-panel" aria-label="Cómo solicitar el servicio">
+      <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Solicitud guiada</span></div>
       <div class="cw-panel-main">
-        <p class="cw-panel-kicker">Servicio a domicilio</p>
-        <strong>Consulta atención en tu sector.</strong>
-        <p>Bello · Itagüí · El Poblado · Sabaneta · La Estrella y zonas aledañas del Área Metropolitana.</p>
+        <p class="cw-panel-kicker">Claro y sencillo</p>
+        <strong>Solicita una revisión en 3 pasos.</strong>
+        <ol class="cw-panel-steps">
+          <li><span>1</span><div><b>Equipo</b><small>Indica qué falla</small></div></li>
+          <li><span>2</span><div><b>Ubicación</b><small>Consulta cobertura</small></div></li>
+          <li><span>3</span><div><b>Contacto</b><small>Recibe tu número de solicitud</small></div></li>
+        </ol>
       </div>
-      <a href="{% url 'website:coverage' %}">Ver zonas de cobertura <span aria-hidden="true">↗</span></a>
+      <a href="{% url 'website:request_service' %}">Comenzar solicitud <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -69,9 +71,9 @@
       <a href="{% url 'website:service_category' 'hogar' %}">Hogar <span aria-hidden="true">↗</span></a>
       <a href="{% url 'website:service_category' 'industriales' %}">Industria <span aria-hidden="true">↗</span></a>
     </div>
-    <div class="service-grid cw-service-grid">
+    <div class="cw-equipment-grid">
       {% for service in services %}
-        {% include "website/partials/service_card.html" with service=service %}
+        {% include "website/partials/equipment_choice.html" with service=service %}
       {% endfor %}
     </div>
   </div>

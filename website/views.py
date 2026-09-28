@@ -348,14 +348,26 @@ def request_service(request: HttpRequest) -> HttpResponse:
         response = HttpResponse(status=405)
         response["Allow"] = "GET, HEAD, POST"
         return response
-    if not SiteSettings.load().feature_diagnostic_form:
+    settings_object = SiteSettings.load()
+    if not settings_object.feature_diagnostic_form:
         raise Http404("El formulario de solicitudes no está habilitado.")
+
+    initial = {}
+    service_slug = request.GET.get("service", "").strip()
+    if service_slug and settings_object.feature_services:
+        selected_service = _active_services().filter(slug=service_slug).first()
+        if selected_service:
+            initial = {
+                "service": selected_service,
+                "equipment": selected_service.name,
+            }
+
     return render(
         request,
         "website/request_service.html",
         {
-            "request_form": _request_form(request),
-            "contextual_whatsapp_url": SiteSettings.load().whatsapp_url_for(
+            "request_form": _request_form(request, **initial),
+            "contextual_whatsapp_url": settings_object.whatsapp_url_for(
                 "Hola, estoy completando una solicitud en la página de CW Reparaciones "
                 "y quisiera consultar por WhatsApp."
             ),

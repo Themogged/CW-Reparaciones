@@ -102,6 +102,26 @@ class PublicViewTests(TestCase):
         self.assertEqual(response.status_code, 405)
         self.assertEqual(response.headers["Allow"], "GET, HEAD, POST")
 
+    def test_request_form_prefills_an_active_service_from_the_selector(self):
+        response = self.client.get(
+            reverse("website:request_service"),
+            {"service": self.active_service.slug},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context["request_form"]
+        self.assertEqual(form.initial["service"], self.active_service)
+        self.assertEqual(form.initial["equipment"], self.active_service.name)
+
+    def test_request_form_ignores_an_inactive_or_unknown_service(self):
+        for slug in (self.inactive_service.slug, "servicio-inexistente"):
+            with self.subTest(slug=slug):
+                response = self.client.get(
+                    reverse("website:request_service"), {"service": slug}
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertNotIn("service", response.context["request_form"].initial)
+
     def test_detail_hides_inactive_service(self):
         response = self.client.get(
             reverse("website:service_detail", args=(self.inactive_service.slug,))

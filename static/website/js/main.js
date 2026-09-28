@@ -582,6 +582,7 @@
       }
       if (progressText) progressText.textContent = `Paso ${humanStep} de ${steps.length}`;
       if (progressPercent) progressPercent.textContent = `${percent}%`;
+      if (progressFill) progressFill.style.width = `${percent}%`;
 
       form.querySelectorAll("[data-step-indicator]").forEach((indicator, index) => {
         indicator.classList.toggle("is-active", index === currentStep);

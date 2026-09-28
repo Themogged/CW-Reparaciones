@@ -152,11 +152,13 @@ class ServiceRequestFormTests(TestCase):
         self.assertEqual(service_request.utm_medium, "social")
         self.assertIsNotNone(service_request.consented_at)
 
-    def test_form_defines_seven_steps(self):
+    def test_form_defines_three_customer_focused_steps(self):
         form = ServiceRequestForm()
         steps = list(form.steps())
-        self.assertEqual([number for number, fields in steps], [1, 2, 3, 4, 5, 6, 7])
-        self.assertEqual(steps[3][1][0].name, "diagnostic_media")
+        self.assertEqual([number for number, fields in steps], [1, 2, 3])
+        self.assertIn("diagnostic_media", [field.name for field in steps[0][1]])
+        self.assertIn("municipality", [field.name for field in steps[1][1]])
+        self.assertIn("privacy_accepted", [field.name for field in steps[2][1]])
 
     def test_honeypot_rejects_submission(self):
         form = ServiceRequestForm(data=self.valid_data(website="spam.example"))
