@@ -1,4 +1,4 @@
-@layer reset, tokens, base, layout, components, pages, utilities, overrides, mobile-refinement, master-refresh;
+@layer reset, tokens, base, layout, components, pages, utilities, overrides, mobile-refinement, master-refresh, interior-refresh;
 
 @layer mobile-refinement {
   .cw-mobile-start { display: none; }
@@ -1765,5 +1765,110 @@
 
   @media (prefers-reduced-motion: reduce) {
     .cw-equipment-choice, .service-card, .benefit-card, .contact-option-card, .project-card, .desktop-nav a { transition: none; }
+  }
+}
+
+/* Shared finish for the interior pages and the confirmation flow. */
+@layer interior-refresh {
+  .cw-detail-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-bottom: 0;
+    padding-block: clamp(2.5rem, 5vw, 4.5rem);
+    background:
+      radial-gradient(circle at 88% 12%, rgb(21 147 220 / 34%), transparent 25rem),
+      linear-gradient(125deg, #02162f, #052f62 65%, #075393);
+    color: #fff;
+  }
+  .cw-detail-hero::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    opacity: .12;
+    background-image: linear-gradient(#fff2 1px, transparent 1px), linear-gradient(90deg, #fff2 1px, transparent 1px);
+    background-size: 38px 38px;
+    mask-image: linear-gradient(90deg, black, transparent 84%);
+    content: "";
+  }
+  .cw-detail-hero .breadcrumbs, .cw-detail-hero .breadcrumbs a { color: #c0d8ed; }
+  .cw-detail-hero .breadcrumbs a:hover, .cw-detail-form-link:hover { color: #fff; }
+  .cw-detail-hero .eyebrow { color: #ffca70; }
+  .cw-detail-hero h1 { max-width: 14ch; color: #fff; line-height: 1.04; }
+  .cw-detail-lead, .cw-case-heading > p:not(.eyebrow) { color: #d7e7f5; line-height: 1.7; }
+  .cw-detail-form-link { width: auto; color: #ffcd77; text-decoration-thickness: 2px; text-underline-offset: .25em; }
+  .cw-detail-layout .cw-process-warning { max-width: 60ch; border-color: #ffb942; color: #d4e3f0; }
+  .cw-detail-aside {
+    border: 1px solid rgb(255 255 255 / 26%);
+    border-radius: 24px;
+    padding: .55rem;
+    background: rgb(255 255 255 / 11%);
+    box-shadow: 0 28px 70px rgb(0 11 29 / 26%);
+  }
+  .cw-detail-aside > img, .cw-detail-placeholder { height: 100%; border-radius: 18px; }
+  .cw-detail-placeholder { min-height: 300px; border-color: #aac8dc; background: linear-gradient(145deg, #f5faff, #e2eff8); }
+  .cw-detail-placeholder .icon { width: 72px; height: 72px; }
+  .cw-case-hero { padding-block: clamp(2.7rem, 5vw, 4.8rem); }
+  .cw-case-heading h1 { max-width: 17ch; }
+  .cw-case-meta span { border-color: rgb(255 255 255 / 28%); border-radius: 999px; padding: .5rem .8rem; background: rgb(255 255 255 / 9%); color: #e9f5ff; }
+
+  .cw-three-steps li, .process-detail-content, .cw-case-steps li {
+    border-color: #d5e1eb;
+    border-radius: 20px;
+    background: linear-gradient(150deg, #fff, #f9fcfe);
+    box-shadow: var(--shadow-xs);
+  }
+  .cw-three-steps li { position: relative; min-height: 170px; overflow: hidden; padding: 1.5rem; }
+  .cw-three-steps li::after {
+    position: absolute;
+    top: -2.5rem;
+    right: -2.5rem;
+    width: 8rem;
+    height: 8rem;
+    border: 1px solid rgb(7 91 170 / 9%);
+    border-radius: 50%;
+    content: "";
+  }
+  .cw-three-steps li span { color: var(--blue-800); font-size: .76rem; letter-spacing: .1em; }
+  .cw-three-steps li h3 { margin-block: .8rem .45rem; }
+  .process-detail-list::before { background: linear-gradient(var(--orange-500), #9ec8e6); }
+  .process-detail-number { border-color: #fff; background: var(--navy-900); color: #fff; box-shadow: 0 0 0 1px #b9cfe0; }
+  .process-detail-content { padding: clamp(1.3rem, 2.5vw, 1.9rem); }
+  .process-detail-icon { border: 1px solid #cfe0ec; border-radius: 15px; background: #ebf5fb; }
+  .cw-case-steps li { padding: 1.25rem; }
+  .cw-case-steps li > span { color: var(--blue-800); }
+  .cw-case-image-grid figure, .cw-case-video-item .cw-video-preview { border-radius: 20px; box-shadow: var(--shadow-xs); }
+
+  .cw-coverage-page-list .cw-zone-list { max-width: none; }
+  .cw-zone-list { border-radius: 22px; }
+  .cw-coverage-disclaimer { border-left: 3px solid var(--orange-500); padding-left: 1rem; color: var(--text-secondary); line-height: 1.65; }
+  .contact-option-card { min-height: 145px; }
+  .contact-option-card h3 { letter-spacing: -.03em; }
+  .contact-option-card p { overflow-wrap: anywhere; }
+  .cw-detail-overview .rich-text, .information-card .rich-text { line-height: 1.8; }
+  .cw-verified-brands li { border-radius: 999px; background: var(--blue-50); }
+
+  .status-page, .error-page {
+    background:
+      radial-gradient(circle at 84% 20%, rgb(21 147 220 / 30%), transparent 26rem),
+      linear-gradient(125deg, #02162f, #052f62 64%, #075393);
+  }
+  .status-card, .error-copy { position: relative; z-index: 1; }
+  .status-card { border: 1px solid rgb(255 255 255 / 28%); border-radius: 28px; box-shadow: 0 30px 80px rgb(0 11 29 / 24%); }
+  .request-reference { border-radius: 16px; }
+
+  @media (max-width: 699px) {
+    .cw-detail-hero { padding-block: 2.2rem 2.9rem; }
+    .cw-detail-hero h1 { font-size: clamp(2.2rem, 10.3vw, 3.15rem); }
+    .cw-detail-lead { font-size: .96rem; }
+    .cw-detail-actions { align-items: stretch; }
+    .cw-detail-form-link { display: inline-flex; min-height: 44px; align-items: center; }
+    .cw-detail-aside { border-radius: 19px; padding: .4rem; }
+    .cw-detail-placeholder { min-height: 190px; }
+    .cw-case-meta span { font-size: .74rem; }
+    .cw-three-steps li { min-height: 0; }
+    .process-detail-content { border-radius: 17px; }
+    .cw-zone-list { border-radius: 18px; }
+    .status-card { border-radius: 22px; }
   }
 }

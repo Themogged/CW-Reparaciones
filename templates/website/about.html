@@ -19,7 +19,7 @@
             <p class="eyebrow eyebrow-on-dark">Conoce CW Reparaciones</p>
             <h1 id="page-title">Capacidad técnica con una atención clara y cercana.</h1>
             <p>Servicio para electrodomésticos domésticos e industriales, centrado en las necesidades de cada cliente.</p>
-            {% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Solicitar servicio</a>{% endif %}
+            {% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:request_service' %}#solicitar">Solicitar servicio</a>{% endif %}
         </div>
         <div class="page-hero-symbol page-hero-cw" aria-hidden="true"><span class="symbol-ring"></span><strong>CW</strong></div>
     </div>
@@ -76,5 +76,5 @@
     </div>
 </section>
 
-<section class="final-cta" aria-labelledby="about-cta-title"><div class="final-cta-grid" aria-hidden="true"></div><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Conoce nuestra atención</p><h2 id="about-cta-title">Servicio técnico para necesidades distintas.</h2><p>{% if site_settings.feature_diagnostic_form %}Envíanos la información principal para comenzar.{% else %}Consulta las categorías de atención disponibles.{% endif %}</p></div><div class="final-cta-actions">{% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Solicitar servicio</a>{% endif %}{% if site_settings.feature_services %}<a class="button button-ghost-light" href="{% url 'website:service_list' %}">Ver servicios</a>{% endif %}</div></div></section>
+<section class="final-cta" aria-labelledby="about-cta-title"><div class="final-cta-grid" aria-hidden="true"></div><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Conoce nuestra atención</p><h2 id="about-cta-title">Servicio técnico para necesidades distintas.</h2><p>{% if site_settings.feature_diagnostic_form %}Envíanos la información principal para comenzar.{% else %}Consulta las categorías de atención disponibles.{% endif %}</p></div><div class="final-cta-actions">{% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:request_service' %}#solicitar">Solicitar servicio</a>{% endif %}{% if site_settings.feature_services %}<a class="button button-ghost-light" href="{% url 'website:service_list' %}">Ver servicios</a>{% endif %}</div></div></section>
 {% endblock %}

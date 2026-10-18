@@ -8,7 +8,7 @@
     <div>
       <p class="cw-eyebrow">OPERACIÓN EN TIEMPO REAL</p>
       <h1 id="cw-dashboard-title">Resumen del negocio</h1>
-      <p>Información real de solicitudes, clientes y operación. No se muestran métricas económicas sin datos registrados.</p>
+      <p>Consulta solicitudes recientes, prioridades de atención y el estado de la operación desde un solo lugar.</p>
     </div>
     {% if perms.website.view_servicerequest %}
       <a class="cw-primary-action" href="{% url 'admin:website_servicerequest_changelist' %}">Gestionar solicitudes</a>
@@ -51,7 +51,7 @@
         <div><dt>Sin técnico</dt><dd>{{ dashboard.unassigned }}</dd></div>
         <div><dt>Programadas</dt><dd>{{ dashboard.scheduled }}</dd></div>
         <div><dt>Clientes</dt><dd>{{ dashboard.customers }}</dd></div>
-        <div><dt>Exports listos</dt><dd>{{ dashboard.exports_ready }}</dd></div>
+        <div><dt>Exportaciones listas</dt><dd>{{ dashboard.exports_ready }}</dd></div>
       </dl>
       {% if dashboard.notifications %}
         <ul class="cw-notifications">{% for notice in dashboard.notifications %}<li>{{ notice }}</li>{% endfor %}</ul>

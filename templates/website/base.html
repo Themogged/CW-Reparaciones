@@ -22,8 +22,8 @@
     <meta name="color-scheme" content="light">
     {% block robots_meta %}{% endblock %}
     <link rel="icon" href="{% static 'website/images/favicon.svg' %}" type="image/svg+xml">
-    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20261015-v12" as="style">
-    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20261015-v12">
+    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20261017-v13" as="style">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20261017-v13">
     <script defer src="{% static 'website/js/main.js' %}?v=20260928-v10"></script>
     {% block extra_head %}{% endblock %}
 </head>
@@ -152,7 +152,7 @@
                         </li>
                     {% endif %}
                     {% if site_settings.feature_diagnostic_form and not contact_channels.whatsapp_url and not contact_channels.phone_url and not contact_channels.email_url %}
-                        <li><a href="{% url 'website:contact' %}#solicitar">Formulario de solicitud</a></li>
+                        <li><a href="{% url 'website:request_service' %}#solicitar">Formulario de solicitud</a></li>
                     {% endif %}
                 </ul>
             </div>

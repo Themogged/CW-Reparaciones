@@ -18,7 +18,7 @@
             <p class="eyebrow eyebrow-on-dark">Proceso claro</p>
             <h1 id="page-title">Sabes qué ocurre en cada etapa.</h1>
             <p>Organizamos la atención desde la información inicial hasta el servicio que se acuerde contigo.</p>
-            {% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Iniciar una solicitud</a>{% endif %}
+            {% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:request_service' %}#solicitar">Iniciar una solicitud</a>{% endif %}
         </div>
     </div>
 </section>
@@ -57,5 +57,5 @@
     </div>
 </section>
 
-{% if site_settings.feature_diagnostic_form or contact_channels.whatsapp_url %}<section class="final-cta" aria-labelledby="process-cta-title"><div class="final-cta-grid" aria-hidden="true"></div><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Comencemos</p><h2 id="process-cta-title">Describe lo que ocurre con tu equipo.</h2><p>{% if site_settings.feature_diagnostic_form %}Completa una solicitud guiada en seis pasos.{% else %}Conversa con nosotros mediante el canal disponible.{% endif %}</p></div><div class="final-cta-actions">{% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:contact' %}#solicitar">Solicitar servicio</a>{% endif %}{% if contact_channels.whatsapp_url %}<a class="button button-ghost-light" href="{{ contact_channels.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>{% endif %}</div></div></section>{% endif %}
+{% if site_settings.feature_diagnostic_form or contact_channels.whatsapp_url %}<section class="final-cta" aria-labelledby="process-cta-title"><div class="final-cta-grid" aria-hidden="true"></div><div class="container final-cta-inner"><div><p class="eyebrow eyebrow-on-dark">Comencemos</p><h2 id="process-cta-title">Describe lo que ocurre con tu equipo.</h2><p>{% if site_settings.feature_diagnostic_form %}Completa una solicitud guiada en tres pasos.{% else %}Conversa con nosotros mediante el canal disponible.{% endif %}</p></div><div class="final-cta-actions">{% if site_settings.feature_diagnostic_form %}<a class="button button-primary" href="{% url 'website:request_service' %}#solicitar">Solicitar servicio</a>{% endif %}{% if contact_channels.whatsapp_url %}<a class="button button-ghost-light" href="{{ contact_channels.whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>{% endif %}</div></div></section>{% endif %}
 {% endblock %}
