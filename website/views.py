@@ -160,7 +160,6 @@ def home(request: HttpRequest) -> HttpResponse:
         "portfolio_projects": portfolio_projects,
         "brand_video": _public_brand_video(),
         "customer_reviews": customer_reviews,
-        "request_form": _request_form(request),
         "coverage_zones": _public_zones(),
         "structured_coverage_zones": _public_zones().filter(
             zone_type__in=(
@@ -211,7 +210,6 @@ def service_detail(request: HttpRequest, slug: str) -> HttpResponse:
         {
             "service": service,
             "faqs": faqs,
-            "request_form": _request_form(request, service=service),
             "service_projects": _public_projects().filter(service=service),
             "related_services": _active_services().exclude(pk=service.pk)[:4],
             "contextual_whatsapp_url": SiteSettings.load().whatsapp_url_for(

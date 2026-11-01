@@ -22,9 +22,9 @@
     <meta name="color-scheme" content="light">
     {% block robots_meta %}{% endblock %}
     <link rel="icon" href="{% static 'website/images/favicon.svg' %}" type="image/svg+xml">
-    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20261017-v13" as="style">
-    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20261017-v13">
-    <script defer src="{% static 'website/js/main.js' %}?v=20260928-v10"></script>
+    <link rel="preload" href="{% static 'website/css/main.css' %}?v=20261101-v14" as="style">
+    <link rel="stylesheet" href="{% static 'website/css/main.css' %}?v=20261101-v14">
+    <script defer src="{% static 'website/js/main.js' %}?v=20261101-v11"></script>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -40,7 +40,7 @@
             <nav class="desktop-nav" aria-label="Navegación principal">
                 <a href="{% url 'website:home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>Inicio</a>
                 {% if site_settings.feature_services %}
-                    <a href="{% url 'website:service_list' %}"{% if request.resolver_match.url_name == 'service_list' or request.resolver_match.url_name == 'service_detail' %} aria-current="page"{% endif %}>Servicios</a>
+                    <a href="{% url 'website:service_list' %}"{% if request.resolver_match.url_name == 'service_list' or request.resolver_match.url_name == 'service_detail' or request.resolver_match.url_name == 'service_category' %} aria-current="page"{% endif %}>Servicios</a>
                 {% endif %}
                 <a href="{% url 'website:coverage' %}"{% if request.resolver_match.url_name == 'coverage' %} aria-current="page"{% endif %}>Cobertura</a>
                 {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}"{% if request.resolver_match.url_name == 'portfolio_list' or request.resolver_match.url_name == 'portfolio_detail' %} aria-current="page"{% endif %}>Trabajos reales</a>{% endif %}
@@ -73,12 +73,12 @@
                 </button>
             </div>
             <nav aria-label="Navegación móvil">
-                <a href="{% url 'website:home' %}">Inicio</a>
-                {% if site_settings.feature_services %}<a href="{% url 'website:service_list' %}">Qué equipos reparamos</a>{% endif %}
-                <a href="{% url 'website:coverage' %}">Zonas de atención</a>
-                {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}">Trabajos reales</a>{% endif %}
-                <a href="{% url 'website:about' %}">Nosotros</a>
-                <a href="{% url 'website:contact' %}">Contacto</a>
+                <a href="{% url 'website:home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-home"></use></svg><span>Inicio</span></a>
+                {% if site_settings.feature_services %}<a href="{% url 'website:service_list' %}"{% if request.resolver_match.url_name == 'service_list' or request.resolver_match.url_name == 'service_detail' or request.resolver_match.url_name == 'service_category' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg><span>Qué equipos reparamos</span></a>{% endif %}
+                <a href="{% url 'website:coverage' %}"{% if request.resolver_match.url_name == 'coverage' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-location"></use></svg><span>Zonas de atención</span></a>
+                {% if has_published_portfolio %}<a href="{% url 'website:portfolio_list' %}"{% if request.resolver_match.url_name == 'portfolio_list' or request.resolver_match.url_name == 'portfolio_detail' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-camera"></use></svg><span>Trabajos reales</span></a>{% endif %}
+                <a href="{% url 'website:about' %}"{% if request.resolver_match.url_name == 'about' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-user"></use></svg><span>Nosotros</span></a>
+                <a href="{% url 'website:contact' %}"{% if request.resolver_match.url_name == 'contact' %} aria-current="page"{% endif %}><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-message"></use></svg><span>Contacto</span></a>
             </nav>
             {% if site_settings.feature_diagnostic_form or contact_channels.whatsapp_url or contact_channels.phone_url or social_links.instagram %}
             <div class="mobile-menu-action">
@@ -191,15 +191,6 @@
             <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-tool"></use></svg>
             <span class="sticky-action-copy"><strong>Solicitar</strong><small>Enviar detalles</small></span>
         </a>{% endif %}
-    </div>
-    {% endif %}
-
-    {% if contact_channels.whatsapp_url %}
-    <div class="cw-whatsapp-orb" data-whatsapp-orb>
-        <span class="cw-whatsapp-label" data-whatsapp-label>Solicitar servicio</span>
-        <a href="{{ contextual_whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Solicitar servicio por WhatsApp" title="Escribir por WhatsApp" data-whatsapp-orb-link>
-            <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg>
-        </a>
     </div>
     {% endif %}
 

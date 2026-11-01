@@ -1007,35 +1007,6 @@
     mobile.addEventListener("change", schedule);
   };
 
-  const setupWhatsappOrb = () => {
-    const orb = document.querySelector("[data-whatsapp-orb]");
-    const link = orb && orb.querySelector("[data-whatsapp-orb-link]");
-    if (!link || prefersReducedMotion.matches) return;
-    const readFlag = (key) => {
-      try { return sessionStorage.getItem(key) === "1"; }
-      catch (_error) { return true; }
-    };
-    const saveFlag = (key) => {
-      try { sessionStorage.setItem(key, "1"); }
-      catch (_error) { /* Sin almacenamiento, no insistimos en otras vistas. */ }
-    };
-    if (!readFlag("cw_whatsapp_intro_v1")) {
-      saveFlag("cw_whatsapp_intro_v1");
-      orb.classList.add("is-intro");
-      window.setTimeout(() => orb.classList.remove("is-intro"), 700);
-    }
-    if (!readFlag("cw_whatsapp_label_v1")) {
-      saveFlag("cw_whatsapp_label_v1");
-      window.setTimeout(() => {
-        if (document.hidden || document.body.classList.contains("menu-open") ||
-            window.matchMedia("(max-width: 699px)").matches) return;
-        orb.classList.add("is-label-visible");
-        window.setTimeout(() => orb.classList.remove("is-label-visible"), 4200);
-      }, 3000);
-    }
-    link.addEventListener("click", () => orb.classList.remove("is-label-visible"));
-  };
-
   const setupSmartVideos = () => {
     const videos = Array.from(document.querySelectorAll("[data-smart-video]"));
     if (!videos.length) return;
@@ -1165,7 +1136,6 @@
     setupHeader();
     setupMobileMenu();
     setupMobileKeyboard();
-    setupWhatsappOrb();
     const attribution = getAttribution();
     document.querySelectorAll(SELECTORS.serviceForm).forEach((form, index) => {
       setupServiceForm(form, index + 1, attribution);

@@ -8,7 +8,7 @@
     <h3>{{ service.name }}</h3>
   </div>
   <a class="cw-equipment-action" href="{% url 'website:request_service' %}?service={{ service.slug|urlencode }}#solicitar" aria-label="Solicitar revisión para {{ service.name }}">
-    <span>Elegir</span>
+    <span>Solicitar</span>
     <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg>
   </a>
   <a class="cw-equipment-details" href="{% url 'website:service_detail' service.slug %}" aria-label="Ver información del servicio de {{ service.name }}">Ver información</a>

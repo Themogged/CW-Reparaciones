@@ -37,14 +37,14 @@
       <p class="cw-hero-lead">Cuéntanos qué equipo falla y dónde estás. Revisamos tu solicitud y coordinamos contigo.</p>
       <div class="cw-hero-actions-primary">
         {% if site_settings.feature_services and services %}<a class="button button-primary" href="#servicios">Elegir mi equipo <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>{% endif %}
-        {% if contact_channels.whatsapp_url %}<a class="button button-ghost-light" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, necesito solicitar un servicio técnico. Mi equipo es y presenta esta falla:" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg> WhatsApp</a>{% endif %}
+        {% if contact_channels.whatsapp_url %}<a class="button button-ghost-light{% if site_settings.feature_services and services %} cw-hero-whatsapp-secondary{% endif %}" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, necesito solicitar un servicio técnico. Mi equipo es y presenta esta falla:" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-whatsapp"></use></svg> WhatsApp</a>{% endif %}
       </div>
       <ul class="cw-hero-trust" aria-label="Características del servicio">
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-home"></use></svg><span>Servicio a domicilio</span></li>
         <li><svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-check-circle"></use></svg><span>Trabajos documentados</span></li>
       </ul>
     </div>
-    <div class="cw-hero-panel" aria-label="Cómo solicitar el servicio">
+    {% if site_settings.feature_diagnostic_form %}<div class="cw-hero-panel" aria-label="Cómo solicitar el servicio">
       <div class="cw-panel-heading"><span class="cw-panel-mark">CW</span><span>Solicitud guiada</span></div>
       <div class="cw-panel-main">
         <p class="cw-panel-kicker">Claro y sencillo</p>
@@ -56,7 +56,7 @@
         </ol>
       </div>
       <a href="{% url 'website:request_service' %}">Comenzar solicitud <span aria-hidden="true">→</span></a>
-    </div>
+    </div>{% endif %}
   </div>
 </section>
 
@@ -147,15 +147,17 @@
 {% endif %}
 
 {% if site_settings.feature_diagnostic_form %}
-<section class="section cw-request-section" id="solicitar" aria-labelledby="request-title">
-  <div class="container request-layout">
-    <div class="request-intro">
+<section class="section cw-request-invitation" id="solicitar" aria-labelledby="request-title">
+  <div class="container cw-request-invitation-inner">
+    <div>
       <p class="eyebrow">Solicitud de servicio</p>
       <h2 id="request-title">Describe el problema una sola vez.</h2>
-      <p>Indica el equipo y la zona, explica lo que sucede y, si quieres, adjunta una foto o video. El envío es una solicitud, no una cita confirmada ni un diagnóstico automático.</p>
-      {% if contact_channels.whatsapp_url %}<a class="text-link" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi la página de CW Reparaciones y necesito solicitar un servicio técnico." target="_blank" rel="noopener noreferrer">Prefiero escribir por WhatsApp <span aria-hidden="true">↗</span></a>{% endif %}
+      <p>Equipo, ubicación y contacto. Te guiamos paso a paso y puedes añadir una foto o video.</p>
     </div>
-    <div class="request-form-shell">{% include "website/partials/service_form.html" with request_form=request_form form_context="home" %}</div>
+    <div class="cw-request-invitation-actions">
+      <a class="button button-primary" href="{% url 'website:request_service' %}#solicitar">Iniciar mi solicitud <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a>
+      <p>La visita se coordina después de revisar tu solicitud.</p>
+    </div>
   </div>
 </section>
 {% endif %}

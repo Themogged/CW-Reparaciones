@@ -37,7 +37,7 @@
         <div class="cw-detail-actions">
           {% if contact_channels.whatsapp_url %}<a class="button button-primary" href="{{ contact_channels.whatsapp_url }}" data-whatsapp-message="Hola, vi el servicio de {{ service.name }} y quisiera solicitar una revisión. Les comparto el problema y mi zona:" target="_blank" rel="noopener noreferrer">Solicitar revisión por WhatsApp</a>{% endif %}
           {% if contact_channels.phone_url %}<a class="button button-secondary" href="{{ contact_channels.phone_url }}">Llamar al {{ contact_channels.phone }}</a>{% endif %}
-          {% if site_settings.feature_diagnostic_form %}<a class="cw-detail-form-link" href="#solicitar">Enviar detalles y archivo <span aria-hidden="true">↓</span></a>{% endif %}
+          {% if site_settings.feature_diagnostic_form %}<a class="cw-detail-form-link" href="{% url 'website:request_service' %}?service={{ service.slug|urlencode }}#solicitar">Enviar detalles y archivo <span aria-hidden="true">→</span></a>{% endif %}
         </div>
         <p class="cw-process-warning">Los síntomas pueden tener distintas causas. Es necesario revisar el equipo para determinar un diagnóstico.</p>
       </div>
@@ -107,10 +107,10 @@
 {% endif %}
 
 {% if site_settings.feature_diagnostic_form %}
-<section class="section cw-request-section" id="solicitar" aria-labelledby="detail-request-title">
-  <div class="container request-layout">
-    <div class="request-intro"><p class="eyebrow">Solicitud para {{ service.name }}</p><h2 id="detail-request-title">Comparte los datos del equipo.</h2><p>Describe lo que sucede y adjunta una foto o video si puede ayudar. La fecha preferida no representa una cita confirmada.</p></div>
-    <div class="request-form-shell">{% include "website/partials/service_form.html" with request_form=request_form form_context="service" %}</div>
+<section class="section cw-request-invitation" id="solicitar" aria-labelledby="detail-request-title">
+  <div class="container cw-request-invitation-inner">
+    <div><p class="eyebrow">Solicitud para {{ service.name }}</p><h2 id="detail-request-title">Comparte los datos del equipo.</h2><p>El servicio ya estará seleccionado. Describe la falla y añade una foto o video si lo necesitas.</p></div>
+    <div class="cw-request-invitation-actions"><a class="button button-primary" href="{% url 'website:request_service' %}?service={{ service.slug|urlencode }}#solicitar">Solicitar revisión <svg class="icon" aria-hidden="true"><use href="{% static 'website/images/icons.svg' %}#icon-arrow-right"></use></svg></a><p>La visita se coordina después de revisar tu solicitud.</p></div>
   </div>
 </section>
 {% endif %}
